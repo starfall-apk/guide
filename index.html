@@ -1,25 +1,188 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Telegram App</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-<body>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<h2>Привет!</h2>
-<button onclick="send()">Отправить данные</button>
+<title>Duck Clicker</title>
+
+<!-- Telegram API -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0e0f14;
+  --card: #181a22;
+  --accent: #ffd24a;
+  --text: #ffffff;
+  --muted: #9aa0b4;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1b1e2b, var(--bg));
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header img {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* Balance */
+.balance {
+  background: linear-gradient(135deg, #22253a, #15182a);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+}
+
+.balance span {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.balance h2 {
+  font-size: 36px;
+  margin: 6px 0 0;
+}
+
+/* Coin button */
+.coin-area {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.coin {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle at top, #fff2a8, #f3b800);
+  box-shadow:
+    0 0 0 10px rgba(255,210,74,0.08),
+    0 20px 40px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+
+.coin:active {
+  transform: scale(0.94);
+}
+
+/* Ducks */
+.ducks {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+}
+
+.duck {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="header">
+    <img src="https://i.imgur.com/4AiXzf8.png" alt="duck">
+    <h1>Duck Clicker</h1>
+  </div>
+
+  <div class="balance">
+    <span>Баланс</span>
+    <h2 id="count">0</h2>
+  </div>
+
+  <div class="coin-area">
+    <div class="coin" id="coin">🪙</div>
+  </div>
+
+  <div class="ducks">
+    <div class="duck">🦆</div>
+    <div class="duck">🦆</div>
+    <div class="duck">🦆</div>
+  </div>
+
+  <div class="footer">
+    Tap the coin • Telegram Mini App
+  </div>
+
+</div>
 
 <script>
 const tg = window.Telegram.WebApp;
+tg.expand();
 
-tg.expand(); // на весь экран
+let count = 0;
+const counter = document.getElementById("count");
+const coin = document.getElementById("coin");
 
-console.log(tg.initDataUnsafe.user);
+coin.addEventListener("click", () => {
+  count++;
+  counter.textContent = count;
 
-function send() {
-    tg.sendData("hello from web app");
-}
+  // лёгкая отдача Telegram
+  if (tg.HapticFeedback) {
+    tg.HapticFeedback.impactOccurred("light");
+  }
+});
 </script>
 
 </body>

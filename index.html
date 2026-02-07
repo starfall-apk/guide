@@ -1,189 +1,310 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<title>Duck Clicker</title>
-
-<!-- Telegram API -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-<style>
-:root {
-  --bg: #0e0f14;
-  --card: #181a22;
-  --accent: #ffd24a;
-  --text: #ffffff;
-  --muted: #9aa0b4;
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Duck Clicker — Telegram Mini App</title><!-- Telegram Web App API --><script src="https://telegram.org/js/telegram-web-app.js"></script><!-- Font --><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>
+:root{
+  --bg-1:#0f1724;   /* deep */
+  --bg-2:#0b1220;   /* card */
+  --glass: rgba(255,255,255,0.04);
+  --accent:#18a0fb; /* telegram-blue */
+  --gold-1:#ffd65a;
+  --gold-2:#f0a500;
+  --muted: #9aa4b2;
+  --success:#6ee7b7;
 }
+*{box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+html,body{height:100%;margin:0}
+body{background: radial-gradient(1200px 400px at 10% 10%, rgba(24,58,100,0.18), transparent), linear-gradient(180deg,var(--bg-1),var(--bg-2));color:#e6eef8;display:flex;justify-content:center;padding:18px}
+.container{width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px}
+.header{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#0ea5ff22,#7dd3fc22);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.03);}
+.logo svg{width:40px;height:40px}
+.title{font-weight:800;font-size:18px}
+.subtitle{font-size:13px;color:var(--muted)}
 
-* {
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
-}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:14px;box-shadow:0 10px 30px rgba(2,6,23,0.6);}
+.balance{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.balance-left{display:flex;flex-direction:column}
+.balance .label{font-size:12px;color:var(--muted)}
+.balance .value{font-size:34px;font-weight:800}
+.power{font-size:13px;color:var(--muted)}
 
-body {
-  margin: 0;
-  background: radial-gradient(circle at top, #1b1e2b, var(--bg));
-  color: var(--text);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-}
-
-.app {
-  width: 100%;
-  max-width: 420px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.header img {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-}
-
-.header h1 {
-  font-size: 20px;
-  font-weight: 800;
-}
-
-/* Balance */
-.balance {
-  background: linear-gradient(135deg, #22253a, #15182a);
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-}
-
-.balance span {
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.balance h2 {
-  font-size: 36px;
-  margin: 6px 0 0;
-}
-
-/* Coin button */
-.coin-area {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.coin {
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle at top, #fff2a8, #f3b800);
+.coin-wrap{display:flex;justify-content:center;align-items:center;padding:18px;position:relative}
+.coin{
+  width:220px;height:220px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
+  background:
+    radial-gradient(60% 60% at 30% 25%, rgba(255,255,255,0.9), rgba(255,255,255,0) 12%),
+    conic-gradient(from 200deg at 50% 50%, #ffe89f, #ffd65a 12%, #f0a500 60%, #ffd65a 100%);
   box-shadow:
-    0 0 0 10px rgba(255,210,74,0.08),
-    0 20px 40px rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  cursor: pointer;
-  transition: transform 0.1s ease;
-  user-select: none;
+    0 18px 40px rgba(10,20,40,0.6),
+    inset 0 -6px 28px rgba(0,0,0,0.25),
+    0 0 0 10px rgba(255,214,74,0.06);
+  transition:transform .08s ease, box-shadow .08s ease;
 }
+.coin:active{transform:scale(.94) rotate(-6deg);}
+.coin .center-mark{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));backdrop-filter: blur(6px);} 
+.coin svg{width:72px;height:72px}
+.shine{position:absolute;inset:0;border-radius:50%;pointer-events:none;mix-blend-mode:overlay}
 
-.coin:active {
-  transform: scale(0.94);
-}
+.row{display:flex;gap:12px}
+.ducks{display:flex;gap:10px;justify-content:center}
+.sticker{width:68px;height:68px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease}
+.sticker:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(2,6,23,0.7)}
+.sticker.locked{opacity:.45;filter:grayscale(.2)}
 
-/* Ducks */
-.ducks {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-}
+.shop{display:flex;flex-direction:column;gap:10px}
+.shop .title{font-weight:700}
+.upgrade{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.015));}
+.upgrade .meta{display:flex;flex-direction:column}
+.upgrade .meta .name{font-weight:700}
+.upgrade .meta .cost{font-size:12px;color:var(--muted)}
+.btn-buy{background:linear-gradient(180deg,var(--accent),#0b7fc8);border:none;color:white;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+.btn-buy:active{transform:translateY(1px)}
 
-.duck {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: var(--card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-}
+.particles{position:absolute;inset:0;pointer-events:none}
+.particle{position:absolute;font-weight:800;pointer-events:none;animation:rise .9s cubic-bezier(.15,.9,.3,1) forwards}
+@keyframes rise{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-80px) scale(1.2)}}
 
-/* Footer */
-.footer {
-  margin-top: auto;
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-}
-</style>
-</head>
+/* sticker collect animation */
+.collected{animation:pop-sticker .6s ease forwards}
+@keyframes pop-sticker{0%{transform:scale(.2) rotate(-20deg);opacity:0}60%{transform:scale(1.12) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0)}}
 
+.footer{font-size:12px;color:var(--muted);text-align:center}
+
+/* responsive */
+@media (max-width:420px){.coin{width:180px;height:180px}.coin .center-mark{width:80px;height:80px}}
+</style></head>
 <body>
-<div class="app">
-
+<div class="container">
   <div class="header">
-    <img src="https://i.imgur.com/4AiXzf8.png" alt="duck">
-    <h1>Duck Clicker</h1>
+    <div class="brand">
+      <div class="logo" id="logo">
+        <!-- small duck NFT icon (SVG) -->
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#ffd65a"/><stop offset="1" stop-color="#f0a500"/></linearGradient>
+          </defs>
+          <rect x="4" y="8" width="56" height="48" rx="12" fill="url(#g1)" />
+          <path d="M36 28c0 4.418-3.582 8-8 8s-8-3.582-8-8 3.582-8 8-8 8 3.582 8 8z" fill="#fff" opacity="0.95"/>
+          <circle cx="31" cy="26" r="2" fill="#0b1220"/>
+        </svg>
+      </div>
+      <div>
+        <div class="title">Duck Clicker</div>
+        <div class="subtitle">Telegram Mini App • NFT vibes</div>
+      </div>
+    </div>
+  </div>  <div class="card">
+    <div class="balance">
+      <div class="balance-left">
+        <div class="label">Баланс</div>
+        <div class="value" id="count">0</div>
+        <div class="power">Каждый клик: <strong id="power">1</strong></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <button id="saveBtn" class="btn-buy" style="padding:6px 10px;font-size:13px">Сохранить</button>
+        <div class="subtitle" id="status">Offline</div>
+      </div>
+    </div><div class="coin-wrap" style="margin-top:12px;">
+  <div class="coin" id="coinBtn" aria-label="coin">
+    <div class="center-mark">
+      <!-- coin icon (SVG) -->
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" fill="url(#cg)" />
+        <defs>
+          <linearGradient id="cg" x1="0" x2="1">
+            <stop offset="0" stop-color="#fff7d0"/>
+            <stop offset="1" stop-color="#ffd65a"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(0,0)" fill="#0b1220">
+          <path d="M39 24c0 6-7 6-7 10s3 4 3 6-8 4-8-6c0-10 12-10 12-10z"/>
+        </g>
+      </svg>
+    </div>
+    <div class="shine"></div>
   </div>
-
-  <div class="balance">
-    <span>Баланс</span>
-    <h2 id="count">0</h2>
-  </div>
-
-  <div class="coin-area">
-    <div class="coin" id="coin">🪙</div>
-  </div>
-
-  <div class="ducks">
-    <div class="duck">🦆</div>
-    <div class="duck">🦆</div>
-    <div class="duck">🦆</div>
-  </div>
-
-  <div class="footer">
-    Tap the coin • Telegram Mini App
-  </div>
-
+  <div class="particles" id="particles"></div>
 </div>
 
-<script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+<div style="margin-top:12px">
+  <div class="row ducks" id="stickersRow">
+    <!-- sticker slots (will be filled by JS) -->
+  </div>
+</div>
 
-let count = 0;
-const counter = document.getElementById("count");
-const coin = document.getElementById("coin");
+  </div>  <div class="card shop">
+    <div class="title">Магазин улучшений</div>
+    <div class="upgrade">
+      <div class="meta"><div class="name">Увеличить x2</div><div class="cost">Цена: <span class="cost-val">50</span></div></div>
+      <button class="btn-buy" data-mult="2" data-cost="50">Купить</button>
+    </div>
+    <div class="upgrade">
+      <div class="meta"><div class="name">Увеличить x5</div><div class="cost">Цена: <span class="cost-val">200</span></div></div>
+      <button class="btn-buy" data-mult="5" data-cost="200">Купить</button>
+    </div>
+    <div class="upgrade">
+      <div class="meta"><div class="name">Увеличить x10</div><div class="cost">Цена: <span class="cost-val">500</span></div></div>
+      <button class="btn-buy" data-mult="10" data-cost="500">Купить</button>
+    </div>
+  </div>  <div class="footer">Made for Telegram Mini Apps — stylish, simple, addicting</div>
+</div><script>
+// Telegram integration
+const tg = window.Telegram?.WebApp;
+try{ tg?.expand(); }catch(e){/*ignore*/}
+if(tg && tg.colorScheme === 'light'){document.body.classList.add('light')}
 
-coin.addEventListener("click", () => {
-  count++;
-  counter.textContent = count;
+// App state
+let state = {
+  count: Number(localStorage.getItem('dc_count')) || 0,
+  power: Number(localStorage.getItem('dc_power')) || 1,
+  stickersOwned: JSON.parse(localStorage.getItem('dc_stickers') || '[]')
+};
 
-  // лёгкая отдача Telegram
-  if (tg.HapticFeedback) {
-    tg.HapticFeedback.impactOccurred("light");
+const countEl = document.getElementById('count');
+const powerEl = document.getElementById('power');
+const coinBtn = document.getElementById('coinBtn');
+const particles = document.getElementById('particles');
+const stickersRow = document.getElementById('stickersRow');
+const saveBtn = document.getElementById('saveBtn');
+const statusEl = document.getElementById('status');
+
+// Define sticker set (inline SVGs) — five designs
+const STICKERS = [
+  { id:'duck1', name:'Classic Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s1" x1="0" x2="1"><stop offset="0" stop-color="#ffd65a"/><stop offset="1" stop-color="#f0a500"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s1)"/><g transform="translate(12,18)" fill="#fff"><ellipse cx="36" cy="36" rx="24" ry="18"/></g><circle cx="74" cy="44" r="6" fill="#0b1220"/></svg>` },
+  { id:'duck2', name:'Cyber Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s2" x1="0" x2="1"><stop offset="0" stop-color="#8be9ff"/><stop offset="1" stop-color="#18a0fb"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s2)"/><g transform="translate(10,20)" fill="#071327"><path d="M60 40c-10 0-18-6-18-14s8-16 18-16 20 10 20 18-6 12-20 12z"/></g></svg>`},
+  { id:'duck3', name:'Neo Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s3" x1="0" x2="1"><stop offset="0" stop-color="#ffd6c9"/><stop offset="1" stop-color="#ff9f6b"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s3)"/><g transform="translate(14,22)" fill="#071327"><path d="M46 36c8 0 14 6 14 14s-6 12-14 12-18-6-18-12 8-14 18-14z"/></g></svg>`},
+  { id:'duck4', name:'Gold Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s4"><stop offset="0" stop-color="#fff9e6"/><stop offset="1" stop-color="#ffd65a"/></radialGradient></defs><rect rx="18" width="120" height="120" fill="url(#s4)"/><g transform="translate(12,22)" fill="#0b1220"><path d="M48 36c10 0 18 8 18 16s-8 12-18 12-22-6-22-12 10-16 22-16z"/></g></svg>`},
+  { id:'duck5', name:'Pixel Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect rx="18" width="120" height="120" fill="#111827"/><g transform="translate(18,20)" fill="#ffd65a"><rect x="18" y="12" width="28" height="20" rx="4"/></g></svg>`}
+];
+
+// Render sticker slots
+function renderStickers(){
+  stickersRow.innerHTML = '';
+  STICKERS.forEach(s=>{
+    const has = state.stickersOwned.includes(s.id);
+    const div = document.createElement('div');
+    div.className = 'sticker' + (has ? ' owned' : ' locked');
+    div.dataset.id = s.id;
+    div.title = s.name + (has ? ' — В коллекции' : ' — Нажми чтобы получить');
+    div.innerHTML = s.svg + (has ? '<div style="position:absolute;right:8px;bottom:8px;font-size:11px;color:var(--success);font-weight:700">✔</div>' : '');
+    div.addEventListener('click', ()=>{
+      if(has) return showPreview(s);
+      // try to buy/earn sticker
+      if(state.count >= 100){
+        state.count -= 100; state.stickersOwned.push(s.id); saveState(); updateUI(); playCollectAnimation(div);
+      } else {
+        flash("Нужно 100 монет для стикера");
+      }
+    });
+    stickersRow.appendChild(div);
+  });
+}
+
+function playCollectAnimation(el){
+  el.classList.add('collected');
+  setTimeout(()=>el.classList.remove('collected'),600);
+}
+function showPreview(st){
+  // simple preview — open new small window inside webapp using Telegram interface (if available)
+  if(tg && tg.openInvoice){ /* no-op */ }
+  flash(`${st.name} — в твоей коллекции`);
+}
+
+// Particles and sticker drops
+function spawnParticles(x,y, gain){
+  for(let i=0;i<6;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    p.style.left = (x + (Math.random()*120-60))+'px';
+    p.style.top = (y + (Math.random()*60-30))+'px';
+    p.style.color = i%2? 'var(--gold-2)':'var(--gold-1)';
+    p.textContent = '+'+Math.floor(gain/ (i+1) );
+    particles.appendChild(p);
+    setTimeout(()=>p.remove(),900);
   }
-});
-</script>
+}
 
-</body>
+// small toast
+let toastTimer=null;
+function flash(msg){
+  statusEl.textContent = msg;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{statusEl.textContent = (tg? 'Online':'Offline')},1600);
+}
+
+// Save/Load
+function saveState(){
+  localStorage.setItem('dc_count', state.count);
+  localStorage.setItem('dc_power', state.power);
+  localStorage.setItem('dc_stickers', JSON.stringify(state.stickersOwned));
+}
+
+// UI update
+function updateUI(){
+  countEl.textContent = state.count;
+  powerEl.textContent = state.power;
+  renderStickers();
+}
+
+// Click logic
+coinBtn.addEventListener('click',(ev)=>{
+  // animate coin
+  coinBtn.animate([
+    { transform: 'translateY(0) rotate(0) scale(1)' },
+    { transform: 'translateY(-6px) rotate(-8deg) scale(1.02)' },
+    { transform: 'translateY(0) rotate(0) scale(1)' }
+  ],{duration:260,easing:'cubic-bezier(.2,.9,.3,1)'});
+
+  // increment
+  state.count += state.power;
+  saveState();
+  updateUI();
+
+  // spawn particles relative to element
+  const r = coinBtn.getBoundingClientRect();
+  spawnParticles(r.left + r.width/2, r.top + r.height/2, state.power);
+
+  // small chance to drop sticker
+  if(Math.random() < 0.07) {
+    // give a random sticker not owned yet if possible
+    const available = STICKERS.filter(s=>!state.stickersOwned.includes(s.id));
+    if(available.length){
+      const s = available[Math.floor(Math.random()*available.length)];
+      state.stickersOwned.push(s.id);
+      flash('Выпал стикер: '+s.name);
+      saveState(); updateUI();
+    }
+  }
+
+  // haptic
+  try{ if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); else if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
+});
+
+// Shop buttons
+document.querySelectorAll('.btn-buy[data-mult]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const mult = Number(b.dataset.mult), cost = Number(b.dataset.cost);
+    if(state.count >= cost){
+      state.count -= cost; state.power *= mult; saveState(); updateUI(); flash('Покупка успешна');
+    } else flash('Недостаточно монет');
+  });
+});
+
+// save button quick save
+saveBtn.addEventListener('click', ()=>{ saveState(); flash('Сохранено'); });
+
+// init
+if(tg) statusEl.textContent = 'Online'; else statusEl.textContent = 'Offline';
+updateUI();
+
+// expose for debug
+window.DC_STATE = state;
+
+</script></body>
 </html>

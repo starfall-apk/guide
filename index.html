@@ -1,365 +1,138 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Duck Clicker</title><style>
-/* ===== RESET + TELEGRAM FEEL ===== */
-*{
-  -webkit-tap-highlight-color: transparent; /* УБИРАЕТ СИНИЙ КОНТЕЙНЕР */
-  -webkit-touch-callout: none;
-  user-select: none;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выкачка канализации — Артём Шилов</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #1f2933, #111827);
+            color: #ffffff;
+        }
 
-html,body{
-  margin:0;
-  padding:0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
-  height:100%;
-}
+        header {
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+        }
 
-body{
-  background: linear-gradient(120deg,#0f172a,#020617,#0b1220);
-  background-size: 400% 400%;
-  animation: bgFlow 18s ease infinite;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
 
-@keyframes bgFlow{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
+        header p {
+            margin-top: 10px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
 
-.app{
-  width:100%;
-  max-width:420px;
-  padding:24px;
-  text-align:center;
-}
+        .container {
+            padding: 30px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-.title{
-  font-size:26px;
-  font-weight:700;
-  margin-bottom:6px;
-}
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
 
-.subtitle{
-  opacity:.6;
-  margin-bottom:24px;
-}
+        .card h2 {
+            margin-top: 0;
+            font-size: 22px;
+        }
 
-/* ===== DUCK AREA ===== */
-.duck-zone{
-  height:140px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-bottom:20px;
-}
+        ul {
+            padding-left: 20px;
+        }
 
-.duck{
-  width:120px;
-  height:120px;
-  background:url('duck_placeholder.gif') center/contain no-repeat;
-  animation: duckFloat 3s ease-in-out infinite;
-}
+        li {
+            margin-bottom: 8px;
+        }
 
-@keyframes duckFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-10px)}
-}
+        .cta {
+            text-align: center;
+            margin-top: 30px;
+        }
 
-/* ===== COIN BUTTON ===== */
-.coin-wrap{
-  display:flex;
-  justify-content:center;
-  margin:30px 0;
-}
+        .phone {
+            display: inline-block;
+            padding: 15px 25px;
+            font-size: 18px;
+            background: #22c55e;
+            color: #0f172a;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-.coin{
-  width:200px;
-  height:200px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 30% 30%,#fff6,#0000 40%),
-    conic-gradient(from 0deg,#facc15,#fde047,#eab308,#facc15);
-  box-shadow:0 25px 60px #0008,inset 0 0 25px #fff5;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:34px;
-  font-weight:800;
-  cursor:pointer;
-  transition:transform .15s ease;
-}
+        .phone:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+        }
 
-.coin:active{
-  transform:scale(.94);
-  animation: coinShine .6s ease;
-}
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
 
-@keyframes coinShine{
-  0%{filter:brightness(1)}
-  50%{filter:brightness(1.4)}
-  100%{filter:brightness(1)}
-}
+<header>
+    <h1>Выкачка канализации</h1>
+    <p>Частный мастер — Артём Шилов Алексеевич</p>
+</header>
 
-/* ===== COUNTER ===== */
-.counter{
-  font-size:20px;
-  font-weight:600;
-}
+<div class="container">
 
-.plus{
-  position:absolute;
-  font-size:18px;
-  animation: floatUp .8s ease forwards;
-  pointer-events:none;
-}
-
-@keyframes floatUp{
-  from{opacity:1;transform:translateY(0)}
-  to{opacity:0;transform:translateY(-40px)}
-}
-
-</style></head>
-<body><div class="app">
-  <div class="title">🦆 Duck Clicker</div>
-  <div class="subtitle">Telegram‑style Web App</div>  <div class="duck-zone">
-    <!-- СЮДА МОЖНО ПОДКЛЮЧИТЬ АНІМИРОВАННЫЕ STICKERS DUCK (Lottie/TGS → JSON) -->
-    <div class="duck"></div>
-  </div>  <div class="counter">Coins: <span id="count">0</span></div>  <div class="coin-wrap">
-    <div class="coin" id="coin">🪙</div>
-  </div>
-</div><script>
-let count = 0;
-const counter = document.getElementById('count');
-const coin = document.getElementById('coin');
-
-coin.addEventListener('click', e =>{
-  count++;
-  counter.textContent = count;
-
-  const plus = document.createElement('div');
-  plus.className = 'plus';
-  plus.textContent = '+1';
-  plus.style.left = e.clientX + 'px';
-  plus.style.top = e.clientY + 'px';
-  document.body.appendChild(plus);
-
-  setTimeout(()=>plus.remove(),800);
-});
-</script></body>
-</html>    </div>
-  </div>  <div class="card">
-    <div class="balance">
-      <div class="balance-left">
-        <div class="label">Баланс</div>
-        <div class="value" id="count">0</div>
-        <div class="power">Каждый клик: <strong id="power">1</strong></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-        <button id="saveBtn" class="btn-buy" style="padding:6px 10px;font-size:13px">Сохранить</button>
-        <div class="subtitle" id="status">Offline</div>
-      </div>
-    </div><div class="coin-wrap" style="margin-top:12px;">
-  <div class="coin" id="coinBtn" aria-label="coin">
-    <div class="center-mark">
-      <!-- coin icon (SVG) -->
-      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="28" fill="url(#cg)" />
-        <defs>
-          <linearGradient id="cg" x1="0" x2="1">
-            <stop offset="0" stop-color="#fff7d0"/>
-            <stop offset="1" stop-color="#ffd65a"/>
-          </linearGradient>
-        </defs>
-        <g transform="translate(0,0)" fill="#0b1220">
-          <path d="M39 24c0 6-7 6-7 10s3 4 3 6-8 4-8-6c0-10 12-10 12-10z"/>
-        </g>
-      </svg>
+    <div class="card">
+        <h2>Обо мне</h2>
+        <p>
+            Предоставляю услуги по выкачиванию и откачке отходов из канализации.
+            Работаю быстро, аккуратно и без лишних проблем для клиента.
+        </p>
     </div>
-    <div class="shine"></div>
-  </div>
-  <div class="particles" id="particles"></div>
+
+    <div class="card">
+        <h2>Услуги</h2>
+        <ul>
+            <li>Выкачка канализации</li>
+            <li>Откачка септиков и выгребных ям</li>
+            <li>Очистка сточных отходов</li>
+            <li>Работа с частными домами и объектами</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Почему выбирают меня</h2>
+        <ul>
+            <li>Ответственный подход к работе</li>
+            <li>Оперативный выезд</li>
+            <li>Честные цены без скрытых доплат</li>
+            <li>Опыт и аккуратность</li>
+        </ul>
+    </div>
+
+    <div class="cta">
+        <p>Свяжитесь со мной:</p>
+        <!-- ВСТАВЬ СЮДА СВОЙ НОМЕР -->
+        <a class="phone" href="tel:+79250177234">+7 (925) 017-72-34</a>
+    </div>
+
 </div>
 
-<div style="margin-top:12px">
-  <div class="row ducks" id="stickersRow">
-    <!-- sticker slots (will be filled by JS) -->
-  </div>
-</div>
+<footer>
+    © Артём Шилов Алексеевич
+</footer>
 
-  </div>  <div class="card shop">
-    <div class="title">Магазин улучшений</div>
-    <div class="upgrade">
-      <div class="meta"><div class="name">Увеличить x2</div><div class="cost">Цена: <span class="cost-val">50</span></div></div>
-      <button class="btn-buy" data-mult="2" data-cost="50">Купить</button>
-    </div>
-    <div class="upgrade">
-      <div class="meta"><div class="name">Увеличить x5</div><div class="cost">Цена: <span class="cost-val">200</span></div></div>
-      <button class="btn-buy" data-mult="5" data-cost="200">Купить</button>
-    </div>
-    <div class="upgrade">
-      <div class="meta"><div class="name">Увеличить x10</div><div class="cost">Цена: <span class="cost-val">500</span></div></div>
-      <button class="btn-buy" data-mult="10" data-cost="500">Купить</button>
-    </div>
-  </div>  <div class="footer">Made for Telegram Mini Apps — stylish, simple, addicting</div>
-</div><script>
-// Telegram integration
-const tg = window.Telegram?.WebApp;
-try{ tg?.expand(); }catch(e){/*ignore*/}
-if(tg && tg.colorScheme === 'light'){document.body.classList.add('light')}
-
-// App state
-let state = {
-  count: Number(localStorage.getItem('dc_count')) || 0,
-  power: Number(localStorage.getItem('dc_power')) || 1,
-  stickersOwned: JSON.parse(localStorage.getItem('dc_stickers') || '[]')
-};
-
-const countEl = document.getElementById('count');
-const powerEl = document.getElementById('power');
-const coinBtn = document.getElementById('coinBtn');
-const particles = document.getElementById('particles');
-const stickersRow = document.getElementById('stickersRow');
-const saveBtn = document.getElementById('saveBtn');
-const statusEl = document.getElementById('status');
-
-// Define sticker set (inline SVGs) — five designs
-const STICKERS = [
-  { id:'duck1', name:'Classic Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s1" x1="0" x2="1"><stop offset="0" stop-color="#ffd65a"/><stop offset="1" stop-color="#f0a500"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s1)"/><g transform="translate(12,18)" fill="#fff"><ellipse cx="36" cy="36" rx="24" ry="18"/></g><circle cx="74" cy="44" r="6" fill="#0b1220"/></svg>` },
-  { id:'duck2', name:'Cyber Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s2" x1="0" x2="1"><stop offset="0" stop-color="#8be9ff"/><stop offset="1" stop-color="#18a0fb"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s2)"/><g transform="translate(10,20)" fill="#071327"><path d="M60 40c-10 0-18-6-18-14s8-16 18-16 20 10 20 18-6 12-20 12z"/></g></svg>`},
-  { id:'duck3', name:'Neo Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s3" x1="0" x2="1"><stop offset="0" stop-color="#ffd6c9"/><stop offset="1" stop-color="#ff9f6b"/></linearGradient></defs><rect rx="18" width="120" height="120" fill="url(#s3)"/><g transform="translate(14,22)" fill="#071327"><path d="M46 36c8 0 14 6 14 14s-6 12-14 12-18-6-18-12 8-14 18-14z"/></g></svg>`},
-  { id:'duck4', name:'Gold Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s4"><stop offset="0" stop-color="#fff9e6"/><stop offset="1" stop-color="#ffd65a"/></radialGradient></defs><rect rx="18" width="120" height="120" fill="url(#s4)"/><g transform="translate(12,22)" fill="#0b1220"><path d="M48 36c10 0 18 8 18 16s-8 12-18 12-22-6-22-12 10-16 22-16z"/></g></svg>`},
-  { id:'duck5', name:'Pixel Duck', svg: `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><rect rx="18" width="120" height="120" fill="#111827"/><g transform="translate(18,20)" fill="#ffd65a"><rect x="18" y="12" width="28" height="20" rx="4"/></g></svg>`}
-];
-
-// Render sticker slots
-function renderStickers(){
-  stickersRow.innerHTML = '';
-  STICKERS.forEach(s=>{
-    const has = state.stickersOwned.includes(s.id);
-    const div = document.createElement('div');
-    div.className = 'sticker' + (has ? ' owned' : ' locked');
-    div.dataset.id = s.id;
-    div.title = s.name + (has ? ' — В коллекции' : ' — Нажми чтобы получить');
-    div.innerHTML = s.svg + (has ? '<div style="position:absolute;right:8px;bottom:8px;font-size:11px;color:var(--success);font-weight:700">✔</div>' : '');
-    div.addEventListener('click', ()=>{
-      if(has) return showPreview(s);
-      // try to buy/earn sticker
-      if(state.count >= 100){
-        state.count -= 100; state.stickersOwned.push(s.id); saveState(); updateUI(); playCollectAnimation(div);
-      } else {
-        flash("Нужно 100 монет для стикера");
-      }
-    });
-    stickersRow.appendChild(div);
-  });
-}
-
-function playCollectAnimation(el){
-  el.classList.add('collected');
-  setTimeout(()=>el.classList.remove('collected'),600);
-}
-function showPreview(st){
-  // simple preview — open new small window inside webapp using Telegram interface (if available)
-  if(tg && tg.openInvoice){ /* no-op */ }
-  flash(`${st.name} — в твоей коллекции`);
-}
-
-// Particles and sticker drops
-function spawnParticles(x,y, gain){
-  for(let i=0;i<6;i++){
-    const p = document.createElement('div');
-    p.className='particle';
-    p.style.left = (x + (Math.random()*120-60))+'px';
-    p.style.top = (y + (Math.random()*60-30))+'px';
-    p.style.color = i%2? 'var(--gold-2)':'var(--gold-1)';
-    p.textContent = '+'+Math.floor(gain/ (i+1) );
-    particles.appendChild(p);
-    setTimeout(()=>p.remove(),900);
-  }
-}
-
-// small toast
-let toastTimer=null;
-function flash(msg){
-  statusEl.textContent = msg;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{statusEl.textContent = (tg? 'Online':'Offline')},1600);
-}
-
-// Save/Load
-function saveState(){
-  localStorage.setItem('dc_count', state.count);
-  localStorage.setItem('dc_power', state.power);
-  localStorage.setItem('dc_stickers', JSON.stringify(state.stickersOwned));
-}
-
-// UI update
-function updateUI(){
-  countEl.textContent = state.count;
-  powerEl.textContent = state.power;
-  renderStickers();
-}
-
-// Click logic
-coinBtn.addEventListener('click',(ev)=>{
-  // animate coin
-  coinBtn.animate([
-    { transform: 'translateY(0) rotate(0) scale(1)' },
-    { transform: 'translateY(-6px) rotate(-8deg) scale(1.02)' },
-    { transform: 'translateY(0) rotate(0) scale(1)' }
-  ],{duration:260,easing:'cubic-bezier(.2,.9,.3,1)'});
-
-  // increment
-  state.count += state.power;
-  saveState();
-  updateUI();
-
-  // spawn particles relative to element
-  const r = coinBtn.getBoundingClientRect();
-  spawnParticles(r.left + r.width/2, r.top + r.height/2, state.power);
-
-  // small chance to drop sticker
-  if(Math.random() < 0.07) {
-    // give a random sticker not owned yet if possible
-    const available = STICKERS.filter(s=>!state.stickersOwned.includes(s.id));
-    if(available.length){
-      const s = available[Math.floor(Math.random()*available.length)];
-      state.stickersOwned.push(s.id);
-      flash('Выпал стикер: '+s.name);
-      saveState(); updateUI();
-    }
-  }
-
-  // haptic
-  try{ if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); else if(navigator.vibrate) navigator.vibrate(10); }catch(e){}
-});
-
-// Shop buttons
-document.querySelectorAll('.btn-buy[data-mult]').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    const mult = Number(b.dataset.mult), cost = Number(b.dataset.cost);
-    if(state.count >= cost){
-      state.count -= cost; state.power *= mult; saveState(); updateUI(); flash('Покупка успешна');
-    } else flash('Недостаточно монет');
-  });
-});
-
-// save button quick save
-saveBtn.addEventListener('click', ()=>{ saveState(); flash('Сохранено'); });
-
-// init
-if(tg) statusEl.textContent = 'Online'; else statusEl.textContent = 'Offline';
-updateUI();
-
-// expose for debug
-window.DC_STATE = state;
-
-</script></body>
+</body>
 </html>

@@ -3,214 +3,2847 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приглашение посмотреть игру Theo Town</title>
+    <title>Galaxy Evolution Simulator 9000</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
-            color: white;
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a1a40 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #planetCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Панель управления */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            width: 320px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-container {
             display: flex;
-            flex-direction: column;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #00ffff;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #00ffff;
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #00ffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #0066ff, #00ffff);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            border: 2px solid #00ffff;
+        }
+
+        .value-display {
+            background: rgba(0, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            text-align: center;
+            margin: 10px 0;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(45deg, #0066ff, #00ccff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .button.danger {
+            background: linear-gradient(45deg, #ff0066, #ff3366);
+        }
+
+        .button.success {
+            background: linear-gradient(45deg, #00cc66, #00ff99);
+        }
+
+        /* Кнопка прогнозов */
+        .predictions-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 150;
+            background: linear-gradient(45deg, #ff9900, #ffcc00);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
+            transition: all 0.3s;
+            display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            padding: 20px;
-            overflow: hidden;
         }
-        
-        .container {
-            max-width: 800px;
-            animation: fadeIn 1s ease-out;
+
+        .predictions-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 153, 0, 0.6);
         }
-        
-        .message-box {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        /* Панель прогнозов */
+        .prediction-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 120;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid #ff9900;
+            backdrop-filter: blur(15px);
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-        
-        h1 {
-            font-size: 3rem;
+
+        .prediction-panel.active {
+            transform: translateX(0);
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(90deg, #4fc3f7, #29b6f6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
         }
-        
-        .message {
-            font-size: 1.5rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            color: #e3f2fd;
+
+        .prediction-header h3 {
+            color: #ff9900;
+            font-size: 18px;
+            margin: 0;
         }
-        
-        .game-link {
-            display: inline-block;
-            background: linear-gradient(90deg, #00e676, #00c853);
+
+        .close-predictions {
+            background: rgba(255, 0, 0, 0.3);
+            border: none;
             color: white;
-            text-decoration: none;
-            font-size: 1.8rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
             font-weight: bold;
-            padding: 20px 50px;
-            border-radius: 50px;
-            margin: 30px 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0, 200, 83, 0.4);
-            animation: pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
         }
-        
-        .game-link:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(0, 200, 83, 0.6);
+
+        .close-predictions:hover {
+            background: rgba(255, 0, 0, 0.5);
+            transform: rotate(90deg);
         }
-        
-        .game-link:active {
-            transform: translateY(-2px);
+
+        .prediction-item {
+            margin: 18px 0;
+            padding: 18px;
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.1), rgba(255, 204, 0, 0.05));
+            border-radius: 12px;
+            border-left: 4px solid #ff9900;
+            transition: all 0.3s;
         }
-        
-        .game-id {
-            background: rgba(0, 0, 0, 0.2);
+
+        .prediction-item:hover {
+            background: linear-gradient(135deg, rgba(255, 153, 0, 0.15), rgba(255, 204, 0, 0.1));
+            transform: translateX(5px);
+        }
+
+        .prediction-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .prediction-label span:first-child {
+            font-weight: bold;
+            color: #ffcc00;
+            font-size: 15px;
+        }
+
+        .prediction-label span:last-child {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+            color: #ffffff;
+            background: rgba(255, 153, 0, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .probability-bar-container {
+            margin: 12px 0;
+        }
+
+        .probability-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9900, #ffcc00, #ffff66);
+            border-radius: 6px;
+            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .probability-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.3) 50%, 
+                transparent 100%);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .probability-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .prediction-effects {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 153, 0, 0.3);
+        }
+
+        .effect-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .effect-item.positive {
+            color: #66ff66;
+        }
+
+        .effect-item.negative {
+            color: #ff6666;
+        }
+
+        .prediction-description {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* Меню изучения жизни */
+        .life-study-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-height: 40vh;
+            display: none;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #33cc33;
+        }
+
+        .species-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .species-card {
+            background: rgba(51, 204, 51, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(51, 204, 51, 0.3);
+        }
+
+        .species-card:hover {
+            transform: scale(1.05);
+            background: rgba(51, 204, 51, 0.2);
+        }
+
+        .species-image {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(45deg, #33cc33, #66ff66);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.3);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+            z-index: 1000;
+            display: none;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+        }
+
+        .hud {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.7);
             padding: 15px;
             border-radius: 10px;
-            font-family: monospace;
-            font-size: 1.2rem;
-            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hud-item {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .color-indicator {
             display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
         }
-        
-        .hint {
-            font-size: 1.1rem;
-            color: #bbdefb;
-            margin-top: 30px;
-            opacity: 0.9;
+
+        /* Дополнительные элементы управления */
+        .quick-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 80;
+            display: flex;
+            gap: 10px;
         }
-        
-        .countdown {
-            font-size: 1.3rem;
-            margin-top: 20px;
-            color: #ffeb3b;
-            font-weight: bold;
+
+        .quick-button {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
+
+        .quick-button:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+
+        /* Анимации */
         @keyframes pulse {
-            0% { box-shadow: 0 10px 25px rgba(0, 200, 83, 0.4); }
-            50% { box-shadow: 0 10px 30px rgba(0, 200, 83, 0.7); }
-            100% { box-shadow: 0 10px 25px rgba(0, 200, 83, 0.4); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+        .pulse {
+            animation: pulse 2s infinite;
         }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            .message { font-size: 1.2rem; }
-            .game-link { font-size: 1.4rem; padding: 15px 30px; }
-            .message-box { padding: 30px 20px; }
+
+        /* Полоса прогресса времени */
+        .time-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.2);
+            z-index: 200;
+        }
+
+        .time-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0066ff);
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        /* Индикаторы состояния */
+        .status-indicators {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 60;
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-indicator {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            border: 1px solid;
+        }
+
+        .status-indicator.stable {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .status-indicator.warning {
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+
+        .status-indicator.danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        /* Эффекты на планете */
+        .planet-effects {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .effect-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00ffff;
+            border-radius: 50%;
+            animation: float 3s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-20px) scale(1.5); opacity: 1; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="message-box">
-            <div class="icon">
-                <i class="fas fa-gamepad"></i>
+    <div id="container">
+        <canvas id="planetCanvas"></canvas>
+        
+        <!-- Прогресс времени -->
+        <div class="time-progress">
+            <div class="time-progress-fill" id="timeProgress"></div>
+        </div>
+        
+        <!-- Индикаторы состояния -->
+        <div class="status-indicators">
+            <div class="status-indicator stable" id="stabilityIndicator">
+                <span>●</span> Стабильность: <span id="stabilityValue">95%</span>
+            </div>
+            <div class="status-indicator warning" id="temperatureIndicator">
+                <span>●</span> Температура: <span id="temperatureHUD">15°C</span>
+            </div>
+        </div>
+        
+        <!-- Эффекты планеты -->
+        <div class="planet-effects" id="planetEffects"></div>
+        
+        <!-- Панель управления -->
+        <div class="control-panel">
+            <div class="tab-container">
+                <button class="tab active" onclick="switchTab('atmosphere')">Атмосфера</button>
+                <button class="tab" onclick="switchTab('geology')">Геология</button>
+                <button class="tab" onclick="switchTab('climate')">Климат</button>
+                <button class="tab" onclick="switchTab('life')">Жизнь</button>
+                <button class="tab" onclick="switchTab('advanced')">Доп.</button>
+            </div>
+
+            <div id="atmosphere" class="tab-content active">
+                <div class="section">
+                    <div class="section-title">
+                        <span>Состав атмосферы</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Кислород (O₂)</span>
+                            <span id="oxygenValue">21%</span>
+                        </div>
+                        <input type="range" id="oxygenSlider" min="0" max="100" value="21" step="0.1">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Азот (N₂)</span>
+                            <span id="nitrogenValue">78%</span>
+                        </div>
+                        <input type="range" id="nitrogenSlider" min="0" max="100" value="78" step="0.1">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Углекислый газ (CO₂)</span>
+                            <span id="co2Value">0.04%</span>
+                        </div>
+                        <input type="range" id="co2Slider" min="0" max="50" value="0.04" step="0.01">
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Метан (CH₄)</span>
+                            <span id="methaneValue">0.0002%</span>
+                        </div>
+                        <input type="range" id="methaneSlider" min="0" max="5" value="0.0002" step="0.0001">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Атмосферное давление</span>
+                        <span id="pressureValue">1 атм</span>
+                    </div>
+                    <input type="range" id="pressureSlider" min="0" max="10" value="1" step="0.01">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Парниковый эффект</span>
+                        <span id="greenhouseValue">Слабый</span>
+                    </div>
+                    <input type="range" id="greenhouseSlider" min="0" max="100" value="10" step="1">
+                </div>
+
+                <button class="button" onclick="randomizeAtmosphere()">
+                    🌪️ Случайная атмосфера
+                </button>
+                <button class="button success" onclick="optimizeForLife()">
+                    🌱 Оптимизировать для жизни
+                </button>
+            </div>
+
+            <div id="geology" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <span>Тектоническая активность</span>
+                        <span id="tectonicsValue">Средняя</span>
+                    </div>
+                    <input type="range" id="tectonicsSlider" min="0" max="100" value="50" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Вулканизм</span>
+                        <span id="volcanismValue">Умеренный</span>
+                    </div>
+                    <input type="range" id="volcanismSlider" min="0" max="100" value="30" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Магнитное поле</span>
+                        <span id="magneticValue">1.0x Земли</span>
+                    </div>
+                    <input type="range" id="magneticSlider" min="0" max="5" value="1" step="0.1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Радиоактивность</span>
+                        <span id="radioactivityValue">Низкая</span>
+                    </div>
+                    <input type="range" id="radioactivitySlider" min="0" max="100" value="10" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Гравитация</span>
+                        <span id="gravityValue">1.0g</span>
+                    </div>
+                    <input type="range" id="gravitySlider" min="0.1" max="3" value="1" step="0.1">
+                </div>
+
+                <button class="button success" onclick="generateNewPlanet()">
+                    🪐 Сгенерировать планету
+                </button>
+                <button class="button" onclick="simulateEarthquake()">
+                    🌋 Имитировать землетрясение
+                </button>
+            </div>
+
+            <div id="climate" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <span>Температура</span>
+                        <span id="temperatureValue">15°C</span>
+                    </div>
+                    <input type="range" id="temperatureSlider" min="-100" max="200" value="15" step="0.1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Влажность</span>
+                        <span id="humidityValue">60%</span>
+                    </div>
+                    <input type="range" id="humiditySlider" min="0" max="100" value="60" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Облачный покров</span>
+                        <span id="cloudsValue">40%</span>
+                    </div>
+                    <input type="range" id="cloudsSlider" min="0" max="100" value="40" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Сезонные изменения</span>
+                        <span id="seasonsValue">Умеренные</span>
+                    </div>
+                    <input type="range" id="seasonsSlider" min="0" max="100" value="50" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Осадки</span>
+                        <span id="precipitationValue">Средние</span>
+                    </div>
+                    <input type="range" id="precipitationSlider" min="0" max="100" value="50" step="1">
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Ветровая активность</span>
+                        <span id="windValue">Умеренная</span>
+                    </div>
+                    <input type="range" id="windSlider" min="0" max="100" value="40" step="1">
+                </div>
+
+                <button class="button" onclick="simulateClimateChange()">
+                    🌡️ Симуляция изменения климата
+                </button>
+                <button class="button success" onclick="stabilizeClimate()">
+                    ⚖️ Стабилизировать климат
+                </button>
+            </div>
+
+            <div id="life" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <span>Начало эволюции</span>
+                    </div>
+                    <button class="button success" onclick="startEvolution()">
+                        🧬 Запустить эволюцию
+                    </button>
+                    <button class="button" onclick="seedLife()">
+                        🔬 Занести микроорганизмы
+                    </button>
+                    <button class="button danger" onclick="resetLife()">
+                        💀 Уничтожить всю жизнь
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Изучение видов</span>
+                    </div>
+                    <button class="button" onclick="openLifeStudy()">
+                        📚 Открыть базу данных видов
+                    </button>
+                    <button class="button" onclick="analyzeEcosystem()">
+                        📊 Анализ экосистемы
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Вмешательство</span>
+                    </div>
+                    <button class="button" onclick="introduceSpecies()">
+                        🦠 Ввести новый вид
+                    </button>
+                    <button class="button" onclick="accelerateEvolution()">
+                        ⚡ Ускорить эволюцию
+                    </button>
+                    <button class="button danger" onclick="massExtinction()">
+                        ☄️ Массовое вымирание
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Эволюционные события</span>
+                    </div>
+                    <button class="button" onclick="triggerMutation()">
+                        🧪 Вызвать мутацию
+                    </button>
+                    <button class="button" onclick="createSymbiosis()">
+                        🤝 Создать симбиоз
+                    </button>
+                </div>
+            </div>
+
+            <div id="advanced" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <span>Расширенные настройки</span>
+                    </div>
+                    <button class="button" onclick="openAdvancedSettings()">
+                        ⚙️ Расширенные параметры
+                    </button>
+                    <button class="button" onclick="exportPlanetData()">
+                        📤 Экспорт данных планеты
+                    </button>
+                    <button class="button" onclick="importPlanetData()">
+                        📥 Импорт данных планеты
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Симуляция катастроф</span>
+                    </div>
+                    <button class="button danger" onclick="simulateMeteorImpact()">
+                        💥 Метеоритный удар
+                    </button>
+                    <button class="button danger" onclick="simulateSupervolcano()">
+                        🌋 Супервулкан
+                    </button>
+                    <button class="button danger" onclick="simulateGammaRayBurst()">
+                        ☢️ Гамма-всплеск
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Космические воздействия</span>
+                    </div>
+                    <button class="button" onclick="changeOrbit()">
+                        🛰️ Изменить орбиту
+                    </button>
+                    <button class="button" onclick="addMoon()">
+                        🌕 Добавить спутник
+                    </button>
+                    <button class="button" onclick="simulateSolarFlare()">
+                        ☀️ Солнечная вспышка
+                    </button>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">
+                        <span>Искусственные структуры</span>
+                    </div>
+                    <button class="button" onclick="buildMegastructure()">
+                        🏗️ Построить мегаструктуру
+                    </button>
+                    <button class="button" onclick="terraformPlanet()">
+                        🌍 Терраформирование
+                    </button>
+                    <button class="button success" onclick="buildSpaceElevator()">
+                        🚀 Космический лифт
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка открытия прогнозов -->
+        <button class="predictions-toggle pulse" onclick="togglePredictions()" id="predictionsToggle">
+            🔮
+        </button>
+
+        <!-- Панель прогнозов -->
+        <div class="prediction-panel" id="predictionPanel">
+            <div class="prediction-header">
+                <h3>📊 ПРОГНОЗЫ И ВЕРОЯТНОСТИ</h3>
+                <button class="close-predictions" onclick="togglePredictions()">×</button>
             </div>
             
-            <h1>Привет!</h1>
-            
-            <div class="message">
-                Посмотри игру, которую я недавно нашел:<br>
-                <strong>Theo Town</strong> - увлекательный градостроительный симулятор!
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Появление микробной жизни</span>
+                    <span id="microbialProb">85%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="microbialBar" style="width: 85%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item positive">Благоприятная температура: +25%</div>
+                    <div class="effect-item positive">Достаточная влажность: +15%</div>
+                    <div class="effect-item negative">Высокая радиация: -10%</div>
+                </div>
+                <div class="prediction-description">
+                    Условия благоприятствуют зарождению простейших микроорганизмов в течение 1-10 млн лет.
+                </div>
             </div>
-            
-            <a href="https://theo.town/share?id=6ODNY6Ob" class="game-link" id="gameLink">
-                <i class="fas fa-play-circle"></i> Играть в Theo Town
-            </a>
-            
-            <div class="game-id">
-                ID игры: 6ODNY6Ob
+
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Эволюция многоклеточных</span>
+                    <span id="multicellularProb">45%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="multicellularBar" style="width: 45%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item positive">Стабильная среда: +20%</div>
+                    <div class="effect-item negative">Слабое магнитное поле: -15%</div>
+                    <div class="effect-item positive">Наличие кислорода: +10%</div>
+                </div>
+                <div class="prediction-description">
+                    Переход к сложным формам жизни возможен через 500 млн - 1 млрд лет эволюции.
+                </div>
             </div>
-            
-            <div class="hint">
-                Нажмите на кнопку выше, чтобы открыть игру в новой вкладке
+
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Развитие разума</span>
+                    <span id="intelligenceProb">12%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="intelligenceBar" style="width: 12%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item positive">Сложная экосистема: +8%</div>
+                    <div class="effect-item negative">Частые катастрофы: -20%</div>
+                    <div class="effect-item positive">Наличие суши: +5%</div>
+                </div>
+                <div class="prediction-description">
+                    Формирование разумных существ маловероятно, но возможно при особых условиях.
+                </div>
             </div>
-            
-            <div class="countdown" id="countdown">
-                Автоперенаправление через: <span id="timer">10</span> сек
+
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Технологическая цивилизация</span>
+                    <span id="techProb">3%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="techBar" style="width: 3%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item negative">Недостаток ресурсов: -15%</div>
+                    <div class="effect-item negative">Высокая вулканическая активность: -10%</div>
+                    <div class="effect-item positive">Стабильный климат: +5%</div>
+                </div>
+                <div class="prediction-description">
+                    Достижение технологического уровня требует исключительной стабильности среды.
+                </div>
             </div>
+
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Выход в космос</span>
+                    <span id="spaceProb">1%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="spaceBar" style="width: 1%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item negative">Высокая гравитация: -25%</div>
+                    <div class="effect-item positive">Наличие легких материалов: +3%</div>
+                    <div class="effect-item negative">Атмосферные помехи: -5%</div>
+                </div>
+                <div class="prediction-description">
+                    Космическая экспансия практически невозможна при текущих условиях.
+                </div>
+            </div>
+
+            <div class="prediction-item">
+                <div class="prediction-label">
+                    <span>Выживание цивилизации</span>
+                    <span id="survivalProb">0.5%</span>
+                </div>
+                <div class="probability-bar-container">
+                    <div class="probability-bar">
+                        <div class="probability-fill" id="survivalBar" style="width: 0.5%;"></div>
+                    </div>
+                    <div class="probability-text">
+                        <span>Низкая</span>
+                        <span>Высокая</span>
+                    </div>
+                </div>
+                <div class="prediction-effects">
+                    <div class="effect-item negative">Нестабильность системы: -40%</div>
+                    <div class="effect-item negative">Риск самоуничтожения: -30%</div>
+                    <div class="effect-item positive">Кооперативный потенциал: +2%</div>
+                </div>
+                <div class="prediction-description">
+                    Долгосрочное существование технологической цивилизации крайне маловероятно.
+                </div>
+            </div>
+
+            <div class="section" style="margin-top: 20px; border: none;">
+                <button class="button" onclick="calculateAllProbabilities()" 
+                        style="background: linear-gradient(45deg, #ff9900, #ffcc00); margin-top: 10px;">
+                    🔄 Пересчитать все прогнозы
+                </button>
+                <button class="button" onclick="showProbabilityFactors()" 
+                        style="background: linear-gradient(45deg, #9966ff, #cc99ff); margin-top: 10px;">
+                    📈 Показать факторы влияния
+                </button>
+                <button class="button success" onclick="optimizeForCivilization()" 
+                        style="margin-top: 10px;">
+                    🏙️ Оптимизировать для цивилизации
+                </button>
+            </div>
+        </div>
+
+        <!-- Меню изучения жизни -->
+        <div class="life-study-panel" id="lifeStudyPanel">
+            <button class="close-button" onclick="closeLifeStudy()">×</button>
+            <h3 style="color: #33cc33; margin-bottom: 20px;">🔬 БАЗА ДАННЫХ ВИДОВ</h3>
+            <div id="speciesList" class="species-grid">
+                <!-- Виды будут генерироваться динамически -->
+            </div>
+        </div>
+
+        <!-- Быстрые контролы -->
+        <div class="quick-controls">
+            <button class="quick-button" onclick="pauseSimulation()">
+                ⏸️ Пауза
+            </button>
+            <button class="quick-button" onclick="speedUpTime()">
+                ⏩ Ускорить время
+            </button>
+            <button class="quick-button" onclick="takeScreenshot()">
+                📸 Снимок
+            </button>
+            <button class="quick-button" onclick="resetToEarth()">
+                🌍 Земные условия
+            </button>
+        </div>
+
+        <!-- HUD -->
+        <div class="hud">
+            <div class="hud-item">
+                <span class="color-indicator" id="planetColor"></span>
+                <span>Статус планеты: <span id="planetStatus">Стабильный</span></span>
+            </div>
+            <div class="hud-item">⏳ Время: <span id="planetTime">0 лет</span></div>
+            <div class="hud-item">🧬 Биоразнообразие: <span id="biodiversity">0 видов</span></div>
+            <div class="hud-item">⚖️ Стабильность: <span id="stability">95%</span></div>
+            <div class="hud-item">🌡️ Температура: <span id="temperatureDisplay">15°C</span></div>
+            <div class="hud-item">💨 Атмосфера: <span id="atmosphereQuality">Пригодная</span></div>
+            <div class="hud-item">🔄 Эволюция: <span id="evolutionStage">Отсутствует</span></div>
+        </div>
+
+        <!-- Уведомление -->
+        <div class="notification" id="notification">
+            <div id="notificationText"></div>
+            <button class="button" onclick="closeNotification()" style="margin-top: 10px; padding: 8px 16px; font-size: 12px;">
+                Закрыть
+            </button>
         </div>
     </div>
 
     <script>
-        // Автоматическое перенаправление через 10 секунд
-        let seconds = 10;
-        const timerElement = document.getElementById('timer');
-        const countdownElement = document.getElementById('countdown');
-        const gameLink = document.getElementById('gameLink');
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.setText("💾 Сохранить симуляцию").show();
+        tg.MainButton.setParams({color: "#00ffff"});
         
-        function updateTimer() {
-            timerElement.textContent = seconds;
+        tg.MainButton.onClick(() => {
+            saveSimulation();
+        });
+
+        // Three.js переменные
+        let scene, camera, renderer, planet, controls;
+        let planetMaterial, atmosphereMaterial;
+        
+        // Данные планеты
+        const planetData = {
+            name: "Новая планета",
+            atmosphere: {
+                oxygen: 21,
+                nitrogen: 78,
+                co2: 0.04,
+                methane: 0.0002,
+                pressure: 1,
+                greenhouse: 10
+            },
+            geology: {
+                tectonics: 50,
+                volcanism: 30,
+                magneticField: 1.0,
+                radioactivity: 10,
+                gravity: 1.0
+            },
+            climate: {
+                temperature: 15,
+                humidity: 60,
+                cloudCover: 40,
+                seasons: 50,
+                precipitation: 50,
+                wind: 40
+            },
+            life: {
+                biodiversity: 0,
+                evolutionStage: 0,
+                species: [],
+                evolutionSpeed: 1
+            },
+            time: 0,
+            stability: 95,
+            isPaused: false,
+            timeSpeed: 1
+        };
+
+        // Шаблоны видов (более 50 уникальных видов)
+        const speciesTemplates = [
+            { name: "Кристаллические амебы", type: "microbe", color: "#ff66b2", complexity: 1 },
+            { name: "Плазменные медузы", type: "aquatic", color: "#9966ff", complexity: 3 },
+            { name: "Силурианские драконы", type: "reptile", color: "#33cc33", complexity: 8 },
+            { name: "Нейронные сети", type: "plant", color: "#66ffcc", complexity: 6 },
+            { name: "Кибернетические орхидеи", type: "plant", color: "#ff9966", complexity: 7 },
+            { name: "Квантовые птицы", type: "avian", color: "#6699ff", complexity: 9 },
+            { name: "Телепатические млекопитающие", type: "mammal", color: "#ffcc00", complexity: 10 },
+            { name: "Биолюминесцентные грибы", type: "fungi", color: "#cc66ff", complexity: 4 },
+            { name: "Кремниевые кристаллоиды", type: "crystal", color: "#00ccff", complexity: 5 },
+            { name: "Энергетические существа", type: "energy", color: "#ffff66", complexity: 11 },
+            { name: "Хроно-насекомые", type: "insect", color: "#ff6666", complexity: 6 },
+            { name: "Гравитационные слизни", type: "mollusk", color: "#66ff66", complexity: 4 },
+            { name: "Фотосинтезирующие хищники", type: "plant", color: "#00ff99", complexity: 8 },
+            { name: "Магнитные рыбы", type: "aquatic", color: "#ff66ff", complexity: 5 },
+            { name: "Радиоактивные бактерии", type: "microbe", color: "#99ff66", complexity: 2 },
+            { name: "Телекинетические грызуны", type: "mammal", color: "#66ccff", complexity: 9 },
+            { name: "Квантовые папоротники", type: "plant", color: "#ffcc66", complexity: 7 },
+            { name: "Кристаллические кораллы", type: "aquatic", color: "#ccff66", complexity: 5 },
+            { name: "Электромагнитные орлы", type: "avian", color: "#ff6666", complexity: 10 },
+            { name: "Био-механические существа", type: "cyborg", color: "#66ffff", complexity: 12 },
+            { name: "Псионические деревья", type: "plant", color: "#ff9966", complexity: 8 },
+            { name: "Гибридные амфибии", type: "amphibian", color: "#cc66cc", complexity: 7 },
+            { name: "Нейро-грибы", type: "fungi", color: "#66ff99", complexity: 6 },
+            { name: "Кибернетические насекомые", type: "insect", color: "#ff66cc", complexity: 8 },
+            { name: "Квантовые бактерии", type: "microbe", color: "#66ccff", complexity: 3 },
+            { name: "Телепортационные ящеры", type: "reptile", color: "#ccff66", complexity: 11 },
+            { name: "Биолюминесцентные птицы", type: "avian", color: "#ffcc99", complexity: 8 },
+            { name: "Магнитные млекопитающие", type: "mammal", color: "#99ffcc", complexity: 9 },
+            { name: "Кристаллические рыбы", type: "aquatic", color: "#ff9999", complexity: 6 },
+            { name: "Энергетические растения", type: "plant", color: "#cc99ff", complexity: 7 },
+            { name: "Хроно-бактерии", type: "microbe", color: "#99ccff", complexity: 4 },
+            { name: "Псионические насекомые", type: "insect", color: "#ffccff", complexity: 8 },
+            { name: "Кибернетические рептилии", type: "reptile", color: "#ccffcc", complexity: 10 },
+            { name: "Квантовые грибы", type: "fungi", color: "#ffcc66", complexity: 7 },
+            { name: "Биолюминесцентные млекопитающие", type: "mammal", color: "#66cccc", complexity: 9 },
+            { name: "Магнитные амфибии", type: "amphibian", color: "#cc66ff", complexity: 6 },
+            { name: "Телекинетические птицы", type: "avian", color: "#ff6666", complexity: 10 },
+            { name: "Кристаллические насекомые", type: "insect", color: "#66ff66", complexity: 5 },
+            { name: "Энергетические рыбы", type: "aquatic", color: "#ff9966", complexity: 7 },
+            { name: "Хроно-растения", type: "plant", color: "#99ff66", complexity: 8 },
+            { name: "Кибернетические грибы", type: "fungi", color: "#66ffcc", complexity: 9 },
+            { name: "Псионические бактерии", type: "microbe", color: "#ff66ff", complexity: 5 },
+            { name: "Квантовые рептилии", type: "reptile", color: "#66ff99", complexity: 11 },
+            { name: "Биолюминесцентные амфибии", type: "amphibian", color: "#ffcc00", complexity: 7 },
+            { name: "Магнитные насекомые", type: "insect", color: "#00ccff", complexity: 6 },
+            { name: "Телекинетические рыбы", type: "aquatic", color: "#ff0066", complexity: 8 },
+            { name: "Кристаллические птицы", type: "avian", color: "#00ffcc", complexity: 9 },
+            { name: "Энергетические насекомые", type: "insect", color: "#cc00ff", complexity: 7 },
+            { name: "Хроно-млекопитающие", type: "mammal", color: "#00ff99", complexity: 10 },
+            { name: "Кибернетические амфибии", type: "amphibian", color: "#ff9900", complexity: 8 }
+        ];
+
+        // Инициализация Three.js
+        function init() {
+            // Сцена
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
             
-            if (seconds <= 0) {
-                // Перенаправляем на игру
-                window.location.href = gameLink.href;
-            } else {
-                seconds--;
-                setTimeout(updateTimer, 1000);
+            // Добавляем звезды
+            addStars();
+            
+            // Камера
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Рендерер
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('planetCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            // Управление
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Создаем планету
+            createPlanet();
+            
+            // Создаем атмосферу
+            createAtmosphere();
+            
+            // Инициализация слайдеров
+            initSliders();
+            
+            // Инициализация прогнозов
+            updatePredictions();
+            
+            // Инициализация эффектов
+            createPlanetEffects();
+            
+            // Анимация
+            animate();
+            
+            // Обработка изменения размеров окна
+            window.addEventListener('resize', onWindowResize);
+            
+            // Обновление HUD
+            updateHUD();
+        }
+        
+        function addStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 5000;
+            const positions = new Float32Array(starCount * 3);
+            
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 2000;
+                positions[i + 1] = (Math.random() - 0.5) * 2000;
+                positions[i + 2] = (Math.random() - 0.5) * 2000;
+            }
+            
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.5,
+                transparent: true
+            });
+            
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+        
+        function createPlanet() {
+            const geometry = new THREE.SphereGeometry(1, 128, 128);
+            
+            // Создаем сложный материал с текстурами
+            planetMaterial = new THREE.MeshPhongMaterial({
+                color: 0x4CAF50,
+                shininess: 30,
+                specular: 0x222222,
+                flatShading: false
+            });
+            
+            planet = new THREE.Mesh(geometry, planetMaterial);
+            scene.add(planet);
+            
+            // Освещение
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(5, 3, 5);
+            scene.add(light1);
+            
+            const light2 = new THREE.AmbientLight(0x404040);
+            scene.add(light2);
+        }
+        
+        function createAtmosphere() {
+            const geometry = new THREE.SphereGeometry(1.05, 64, 64);
+            atmosphereMaterial = new THREE.MeshPhongMaterial({
+                color: 0x87CEEB,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.BackSide
+            });
+            
+            const atmosphere = new THREE.Mesh(geometry, atmosphereMaterial);
+            scene.add(atmosphere);
+        }
+        
+        function createPlanetEffects() {
+            const effectsContainer = document.getElementById('planetEffects');
+            
+            // Создаем частицы для эффектов
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'effect-particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 2}s`;
+                particle.style.animationDuration = `${2 + Math.random() * 2}s`;
+                effectsContainer.appendChild(particle);
             }
         }
         
-        // Запускаем таймер
-        setTimeout(updateTimer, 1000);
-        
-        // При клике на ссылку отменяем автоперенаправление
-        gameLink.addEventListener('click', function(e) {
-            // Открываем в новой вкладке
-            e.preventDefault();
-            window.open(this.href, '_blank');
+        function updatePlanetColor() {
+            // Сложная система расчета цвета планеты на основе условий
+            const temp = planetData.climate.temperature;
+            const oxygen = planetData.atmosphere.oxygen;
+            const co2 = planetData.atmosphere.co2;
+            const humidity = planetData.climate.humidity;
             
-            // Останавливаем таймер и меняем текст
-            seconds = 0;
-            countdownElement.innerHTML = 'Игра открывается в новой вкладке!';
-            countdownElement.style.color = '#4caf50';
-        });
-        
-        // Также перенаправляем при клике по всей странице (кроме самой ссылки)
-        document.body.addEventListener('click', function(e) {
-            if (e.target.id !== 'gameLink' && !e.target.closest('#gameLink')) {
-                gameLink.click();
+            let r, g, b;
+            
+            if (temp < -50) {
+                // Ледяная планета
+                r = 200 + Math.random() * 55;
+                g = 230 + Math.random() * 25;
+                b = 255;
+            } else if (temp > 50) {
+                // Пустынная планета
+                r = 200 + oxygen * 0.5;
+                g = 150 - co2 * 2;
+                b = 100 - co2 * 2;
+            } else {
+                // Обитаемая зона
+                r = 50 + oxygen * 2 + co2 * 50;
+                g = 100 + oxygen * 3 + humidity;
+                b = 50 + co2 * 100 + humidity * 0.5;
             }
-        });
+            
+            // Корректировка по вулканической активности
+            const volcanism = planetData.geology.volcanism;
+            r += volcanism * 0.3;
+            g -= volcanism * 0.2;
+            
+            // Корректировка по радиоактивности
+            const radioactivity = planetData.geology.radioactivity;
+            g += radioactivity * 0.1;
+            b += radioactivity * 0.2;
+            
+            // Ограничение значений
+            r = Math.min(255, Math.max(0, r));
+            g = Math.min(255, Math.max(0, g));
+            b = Math.min(255, Math.max(0, b));
+            
+            const color = new THREE.Color(r / 255, g / 255, b / 255);
+            planetMaterial.color = color;
+            
+            // Обновление индикатора
+            document.getElementById('planetColor').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            
+            // Обновление атмосферы
+            updateAtmosphereColor();
+        }
         
-        // Добавляем эффект при наведении на всю страницу
-        document.body.style.cursor = 'pointer';
+        function updateAtmosphereColor() {
+            const co2 = planetData.atmosphere.co2;
+            const methane = planetData.atmosphere.methane;
+            const clouds = planetData.climate.cloudCover;
+            
+            let r = 135, g = 206, b = 235;
+            
+            // Парниковый эффект
+            if (co2 > 1) {
+                r += co2 * 5;
+                g -= co2 * 3;
+                b -= co2 * 2;
+            }
+            
+            // Метан добавляет фиолетовый оттенок
+            if (methane > 0.1) {
+                r += methane * 100;
+                g -= methane * 50;
+                b += methane * 100;
+            }
+            
+            // Облачность
+            if (clouds > 50) {
+                const cloudFactor = (clouds - 50) / 50;
+                r += cloudFactor * 30;
+                g += cloudFactor * 30;
+                b += cloudFactor * 30;
+            }
+            
+            r = Math.min(255, Math.max(0, r));
+            g = Math.min(255, Math.max(0, g));
+            b = Math.min(255, Math.max(0, b));
+            
+            atmosphereMaterial.color = new THREE.Color(r / 255, g / 255, b / 255);
+            atmosphereMaterial.opacity = 0.3 + (clouds / 100) * 0.4;
+        }
+        
+        function initSliders() {
+            // Атмосфера
+            document.getElementById('oxygenSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.atmosphere.oxygen = value;
+                document.getElementById('oxygenValue').textContent = value.toFixed(1) + '%';
+                updateNitrogen();
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('co2Slider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.atmosphere.co2 = value;
+                document.getElementById('co2Value').textContent = value.toFixed(2) + '%';
+                updateNitrogen();
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('methaneSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.atmosphere.methane = value;
+                document.getElementById('methaneValue').textContent = value.toFixed(4) + '%';
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('pressureSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.atmosphere.pressure = value;
+                document.getElementById('pressureValue').textContent = value.toFixed(2) + ' атм';
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('greenhouseSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.atmosphere.greenhouse = value;
+                document.getElementById('greenhouseValue').textContent = 
+                    value < 20 ? 'Слабый' : value < 40 ? 'Умеренный' : 
+                    value < 60 ? 'Сильный' : value < 80 ? 'Очень сильный' : 'Экстремальный';
+                updatePredictions();
+            });
+            
+            // Геология
+            document.getElementById('tectonicsSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.geology.tectonics = value;
+                document.getElementById('tectonicsValue').textContent = 
+                    value < 20 ? 'Слабая' : value < 40 ? 'Умеренная' : 
+                    value < 60 ? 'Средняя' : value < 80 ? 'Высокая' : 'Экстремальная';
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('volcanismSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.geology.volcanism = value;
+                document.getElementById('volcanismValue').textContent = 
+                    value < 20 ? 'Слабый' : value < 40 ? 'Умеренный' : 
+                    value < 60 ? 'Средний' : value < 80 ? 'Активный' : 'Очень активный';
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('magneticSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.geology.magneticField = value;
+                document.getElementById('magneticValue').textContent = value.toFixed(1) + 'x Земли';
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('radioactivitySlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.geology.radioactivity = value;
+                document.getElementById('radioactivityValue').textContent = 
+                    value < 10 ? 'Очень низкая' : value < 30 ? 'Низкая' : 
+                    value < 50 ? 'Средняя' : value < 70 ? 'Высокая' : 'Опасная';
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('gravitySlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.geology.gravity = value;
+                document.getElementById('gravityValue').textContent = value.toFixed(1) + 'g';
+                updatePredictions();
+            });
+            
+            // Климат
+            document.getElementById('temperatureSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                planetData.climate.temperature = value;
+                document.getElementById('temperatureValue').textContent = value.toFixed(1) + '°C';
+                document.getElementById('temperatureHUD').textContent = value.toFixed(1) + '°C';
+                document.getElementById('temperatureDisplay').textContent = value.toFixed(1) + '°C';
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('humiditySlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.climate.humidity = value;
+                document.getElementById('humidityValue').textContent = value + '%';
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('cloudsSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.climate.cloudCover = value;
+                document.getElementById('cloudsValue').textContent = value + '%';
+                updateAtmosphereColor();
+                updatePredictions();
+                updateHUD();
+            });
+            
+            document.getElementById('seasonsSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.climate.seasons = value;
+                document.getElementById('seasonsValue').textContent = 
+                    value < 20 ? 'Отсутствуют' : value < 40 ? 'Слабые' : 
+                    value < 60 ? 'Умеренные' : value < 80 ? 'Сильные' : 'Экстремальные';
+                updatePredictions();
+            });
+            
+            document.getElementById('precipitationSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.climate.precipitation = value;
+                document.getElementById('precipitationValue').textContent = 
+                    value < 20 ? 'Очень низкие' : value < 40 ? 'Низкие' : 
+                    value < 60 ? 'Средние' : value < 80 ? 'Высокие' : 'Очень высокие';
+                updatePredictions();
+            });
+            
+            document.getElementById('windSlider').addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                planetData.climate.wind = value;
+                document.getElementById('windValue').textContent = 
+                    value < 20 ? 'Слабая' : value < 40 ? 'Умеренная' : 
+                    value < 60 ? 'Сильная' : value < 80 ? 'Очень сильная' : 'Экстремальная';
+                updatePredictions();
+            });
+        }
+        
+        function updateNitrogen() {
+            const oxygen = planetData.atmosphere.oxygen;
+            const co2 = planetData.atmosphere.co2;
+            const methane = planetData.atmosphere.methane;
+            const otherGases = 1; // Прочие газы
+            
+            const nitrogen = 100 - oxygen - co2 - methane - otherGases;
+            planetData.atmosphere.nitrogen = Math.max(0, nitrogen);
+            document.getElementById('nitrogenValue').textContent = nitrogen.toFixed(1) + '%';
+            document.getElementById('nitrogenSlider').value = nitrogen;
+        }
+        
+        function updatePredictions() {
+            // Сложный алгоритм расчета вероятностей
+            const temp = planetData.climate.temperature;
+            const oxygen = planetData.atmosphere.oxygen;
+            const pressure = planetData.atmosphere.pressure;
+            const magnetic = planetData.geology.magneticField;
+            const tectonics = planetData.geology.tectonics;
+            const radioactivity = planetData.geology.radioactivity;
+            const humidity = planetData.climate.humidity;
+            const stability = planetData.stability;
+            
+            // Вероятность микробной жизни
+            let microbialProb = 50;
+            
+            // Температурные условия
+            if (temp >= -20 && temp <= 60) {
+                const tempOptimality = 1 - Math.abs(temp - 20) / 40;
+                microbialProb += tempOptimality * 30;
+            } else {
+                microbialProb -= 30;
+            }
+            
+            // Давление
+            if (pressure >= 0.5 && pressure <= 3) {
+                microbialProb += 15;
+            } else {
+                microbialProb -= 15;
+            }
+            
+            // Кислород
+            if (oxygen >= 1) {
+                microbialProb += 10;
+            }
+            
+            // Магнитное поле защищает от радиации
+            if (magnetic >= 0.5) {
+                microbialProb += 10;
+            } else {
+                microbialProb -= 10;
+            }
+            
+            // Радиоактивность
+            if (radioactivity < 30) {
+                microbialProb += 10;
+            } else if (radioactivity > 70) {
+                microbialProb -= 25;
+            }
+            
+            // Влажность
+            microbialProb += (humidity - 50) * 0.2;
+            
+            microbialProb = Math.max(0, Math.min(100, microbialProb));
+            
+            // Вероятность многоклеточных
+            let multicellularProb = microbialProb * 0.7;
+            
+            // Тектоника для перераспределения минералов
+            if (tectonics >= 30 && tectonics <= 70) {
+                multicellularProb += 15;
+            } else {
+                multicellularProb -= 10;
+            }
+            
+            // Кислород для сложной жизни
+            if (oxygen >= 10) {
+                multicellularProb += 20;
+            } else {
+                multicellularProb -= 15;
+            }
+            
+            // Стабильность
+            multicellularProb += (stability - 50) * 0.3;
+            
+            multicellularProb = Math.max(0, Math.min(100, multicellularProb));
+            
+            // Вероятность разума
+            let intelligenceProb = multicellularProb * 0.35;
+            
+            // Магнитное поле для защиты от космических лучей
+            if (magnetic >= 0.8) {
+                intelligenceProb += 10;
+            }
+            
+            // Умеренная тектоническая активность
+            if (tectonics >= 40 && tectonics <= 60) {
+                intelligenceProb += 5;
+            }
+            
+            // Климатическая стабильность
+            if (planetData.climate.seasons >= 40 && planetData.climate.seasons <= 60) {
+                intelligenceProb += 5;
+            }
+            
+            intelligenceProb = Math.max(0, Math.min(100, intelligenceProb));
+            
+            // Технологическая цивилизация
+            let techProb = intelligenceProb * 0.3;
+            
+            // Низкая радиоактивность
+            if (radioactivity < 30) {
+                techProb += 5;
+            }
+            
+            // Доступность ресурсов (связано с тектоникой)
+            if (tectonics >= 20 && tectonics <= 80) {
+                techProb += 5;
+            }
+            
+            techProb = Math.max(0, Math.min(100, techProb));
+            
+            // Выход в космос
+            let spaceProb = techProb * 0.4;
+            
+            // Гравитация
+            const gravity = planetData.geology.gravity;
+            if (gravity <= 1.2) {
+                spaceProb += 5;
+            } else if (gravity > 1.5) {
+                spaceProb -= 15;
+            }
+            
+            // Давление для ракетных двигателей
+            if (pressure >= 0.8 && pressure <= 1.2) {
+                spaceProb += 2;
+            }
+            
+            spaceProb = Math.max(0, Math.min(100, spaceProb));
+            
+            // Выживание цивилизации
+            let survivalProb = techProb * 0.1;
+            
+            // Высокая стабильность увеличивает шансы
+            survivalProb += (stability - 50) * 0.1;
+            
+            // Низкая вероятность самоуничтожения
+            if (radioactivity < 20 && tectonics < 60) {
+                survivalProb += 5;
+            }
+            
+            survivalProb = Math.max(0, Math.min(100, survivalProb));
+            
+            // Обновление интерфейса
+            updatePredictionElement('microbial', microbialProb);
+            updatePredictionElement('multicellular', multicellularProb);
+            updatePredictionElement('intelligence', intelligenceProb);
+            updatePredictionElement('tech', techProb);
+            updatePredictionElement('space', spaceProb);
+            updatePredictionElement('survival', survivalProb);
+            
+            // Обновление стабильности
+            updateStability();
+            
+            // Обновление качества атмосферы в HUD
+            updateAtmosphereQuality();
+        }
+        
+        function updatePredictionElement(id, probability) {
+            const probElement = document.getElementById(id + 'Prob');
+            const barElement = document.getElementById(id + 'Bar');
+            
+            const roundedProb = Math.round(probability);
+            probElement.textContent = roundedProb + '%';
+            barElement.style.width = probability + '%';
+            
+            // Динамическое изменение цвета полосы
+            if (probability < 20) {
+                barElement.style.background = 'linear-gradient(90deg, #ff0000, #ff6666)';
+            } else if (probability < 50) {
+                barElement.style.background = 'linear-gradient(90deg, #ff9900, #ffcc00)';
+            } else {
+                barElement.style.background = 'linear-gradient(90deg, #00cc00, #66ff66)';
+            }
+        }
+        
+        function updateStability() {
+            let stability = 100;
+            
+            // Факторы нестабильности
+            if (planetData.climate.temperature > 80 || planetData.climate.temperature < -30) stability -= 25;
+            if (planetData.atmosphere.pressure > 5 || planetData.atmosphere.pressure < 0.3) stability -= 20;
+            if (planetData.geology.tectonics > 80) stability -= 15;
+            if (planetData.geology.volcanism > 70) stability -= 15;
+            if (planetData.geology.radioactivity > 60) stability -= 20;
+            if (planetData.atmosphere.co2 > 10) stability -= 15;
+            if (planetData.atmosphere.oxygen > 40) stability -= 10;
+            
+            // Позитивные факторы
+            if (planetData.climate.temperature >= 0 && planetData.climate.temperature <= 30) stability += 10;
+            if (planetData.atmosphere.pressure >= 0.8 && planetData.atmosphere.pressure <= 1.2) stability += 10;
+            if (planetData.geology.magneticField >= 0.7 && planetData.geology.magneticField <= 1.3) stability += 10;
+            
+            stability = Math.max(0, Math.min(100, stability));
+            planetData.stability = stability;
+            
+            document.getElementById('stability').textContent = stability + '%';
+            document.getElementById('stabilityValue').textContent = stability + '%';
+            
+            // Обновление индикатора стабильности
+            const stabilityIndicator = document.getElementById('stabilityIndicator');
+            if (stability >= 70) {
+                stabilityIndicator.className = 'status-indicator stable';
+                stabilityIndicator.innerHTML = '<span>●</span> Стабильность: <span id="stabilityValue">' + stability + '%</span>';
+            } else if (stability >= 40) {
+                stabilityIndicator.className = 'status-indicator warning';
+                stabilityIndicator.innerHTML = '<span>●</span> Стабильность: <span id="stabilityValue">' + stability + '%</span>';
+            } else {
+                stabilityIndicator.className = 'status-indicator danger';
+                stabilityIndicator.innerHTML = '<span>●</span> Стабильность: <span id="stabilityValue">' + stability + '%</span>';
+            }
+            
+            // Обновление статуса планеты
+            let status;
+            if (stability >= 80) status = 'Стабильный';
+            else if (stability >= 60) status = 'Умеренный';
+            else if (stability >= 40) status = 'Нестабильный';
+            else if (stability >= 20) status = 'Критический';
+            else status = 'Катастрофический';
+            
+            document.getElementById('planetStatus').textContent = status;
+            
+            // Обновление индикатора температуры
+            const temp = planetData.climate.temperature;
+            const tempIndicator = document.getElementById('temperatureIndicator');
+            if (temp >= 0 && temp <= 30) {
+                tempIndicator.className = 'status-indicator stable';
+                tempIndicator.innerHTML = '<span>●</span> Температура: <span id="temperatureHUD">' + temp.toFixed(1) + '°C</span>';
+            } else if (temp >= -20 && temp <= 40) {
+                tempIndicator.className = 'status-indicator warning';
+                tempIndicator.innerHTML = '<span>●</span> Температура: <span id="temperatureHUD">' + temp.toFixed(1) + '°C</span>';
+            } else {
+                tempIndicator.className = 'status-indicator danger';
+                tempIndicator.innerHTML = '<span>●</span> Температура: <span id="temperatureHUD">' + temp.toFixed(1) + '°C</span>';
+            }
+        }
+        
+        function updateAtmosphereQuality() {
+            const oxygen = planetData.atmosphere.oxygen;
+            const co2 = planetData.atmosphere.co2;
+            const pressure = planetData.atmosphere.pressure;
+            
+            let quality = '';
+            
+            if (oxygen >= 18 && oxygen <= 24 && co2 <= 0.1 && pressure >= 0.8 && pressure <= 1.2) {
+                quality = 'Идеальная';
+            } else if (oxygen >= 10 && oxygen <= 30 && co2 <= 1 && pressure >= 0.5 && pressure <= 2) {
+                quality = 'Пригодная';
+            } else if (oxygen >= 5 && oxygen <= 40 && co2 <= 5 && pressure >= 0.3 && pressure <= 3) {
+                quality = 'Токсичная';
+            } else {
+                quality = 'Смертельная';
+            }
+            
+            document.getElementById('atmosphereQuality').textContent = quality;
+        }
+        
+        function randomizeAtmosphere() {
+            planetData.atmosphere.oxygen = Math.random() * 50;
+            planetData.atmosphere.co2 = Math.random() * 20;
+            planetData.atmosphere.methane = Math.random() * 2;
+            planetData.atmosphere.pressure = 0.1 + Math.random() * 9.9;
+            planetData.atmosphere.greenhouse = Math.random() * 100;
+            
+            // Обновление слайдеров
+            document.getElementById('oxygenSlider').value = planetData.atmosphere.oxygen;
+            document.getElementById('co2Slider').value = planetData.atmosphere.co2;
+            document.getElementById('methaneSlider').value = planetData.atmosphere.methane;
+            document.getElementById('pressureSlider').value = planetData.atmosphere.pressure;
+            document.getElementById('greenhouseSlider').value = planetData.atmosphere.greenhouse;
+            
+            // Обновление отображения
+            document.getElementById('oxygenValue').textContent = planetData.atmosphere.oxygen.toFixed(1) + '%';
+            document.getElementById('co2Value').textContent = planetData.atmosphere.co2.toFixed(2) + '%';
+            document.getElementById('methaneValue').textContent = planetData.atmosphere.methane.toFixed(4) + '%';
+            document.getElementById('pressureValue').textContent = planetData.atmosphere.pressure.toFixed(2) + ' атм';
+            document.getElementById('greenhouseValue').textContent = 
+                planetData.atmosphere.greenhouse < 20 ? 'Слабый' : planetData.atmosphere.greenhouse < 40 ? 'Умеренный' : 
+                planetData.atmosphere.greenhouse < 60 ? 'Сильный' : planetData.atmosphere.greenhouse < 80 ? 'Очень сильный' : 'Экстремальный';
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('Атмосфера рандомизирована! Созданы уникальные атмосферные условия.');
+        }
+        
+        function optimizeForLife() {
+            // Установка оптимальных для жизни параметров
+            planetData.atmosphere.oxygen = 21;
+            planetData.atmosphere.co2 = 0.04;
+            planetData.atmosphere.methane = 0.0002;
+            planetData.atmosphere.pressure = 1;
+            planetData.atmosphere.greenhouse = 10;
+            
+            planetData.climate.temperature = 15;
+            planetData.climate.humidity = 60;
+            planetData.climate.cloudCover = 40;
+            
+            planetData.geology.tectonics = 50;
+            planetData.geology.volcanism = 30;
+            planetData.geology.magneticField = 1.0;
+            planetData.geology.radioactivity = 10;
+            planetData.geology.gravity = 1.0;
+            
+            // Обновление всех слайдеров
+            updateSlidersToCurrentData();
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('Параметры оптимизированы для зарождения и развития жизни!');
+        }
+        
+        function generateNewPlanet() {
+            // Генерация новой случайной планеты с балансом
+            planetData.atmosphere.oxygen = 1 + Math.random() * 40;
+            planetData.atmosphere.co2 = Math.random() * 5;
+            planetData.atmosphere.methane = Math.random() * 0.5;
+            planetData.atmosphere.pressure = 0.3 + Math.random() * 2.7;
+            planetData.atmosphere.greenhouse = Math.random() * 100;
+            
+            planetData.geology.tectonics = Math.random() * 100;
+            planetData.geology.volcanism = Math.random() * 100;
+            planetData.geology.magneticField = Math.random() * 4;
+            planetData.geology.radioactivity = Math.random() * 100;
+            planetData.geology.gravity = 0.5 + Math.random() * 2.5;
+            
+            planetData.climate.temperature = -80 + Math.random() * 160;
+            planetData.climate.humidity = Math.random() * 100;
+            planetData.climate.cloudCover = Math.random() * 100;
+            planetData.climate.seasons = Math.random() * 100;
+            planetData.climate.precipitation = Math.random() * 100;
+            planetData.climate.wind = Math.random() * 100;
+            
+            // Обновление всех слайдеров
+            updateSlidersToCurrentData();
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('Новая уникальная планета сгенерирована! Исследуйте её особенности.');
+        }
+        
+        function updateSlidersToCurrentData() {
+            const sliders = [
+                ['oxygenSlider', 'oxygenValue', planetData.atmosphere.oxygen, 1, '%'],
+                ['co2Slider', 'co2Value', planetData.atmosphere.co2, 2, '%'],
+                ['methaneSlider', 'methaneValue', planetData.atmosphere.methane, 4, '%'],
+                ['pressureSlider', 'pressureValue', planetData.atmosphere.pressure, 2, ' атм'],
+                ['greenhouseSlider', 'greenhouseValue', planetData.atmosphere.greenhouse, 0, ''],
+                ['tectonicsSlider', 'tectonicsValue', planetData.geology.tectonics, 0, ''],
+                ['volcanismSlider', 'volcanismValue', planetData.geology.volcanism, 0, ''],
+                ['magneticSlider', 'magneticValue', planetData.geology.magneticField, 1, 'x Земли'],
+                ['radioactivitySlider', 'radioactivityValue', planetData.geology.radioactivity, 0, ''],
+                ['gravitySlider', 'gravityValue', planetData.geology.gravity, 1, 'g'],
+                ['temperatureSlider', 'temperatureValue', planetData.climate.temperature, 1, '°C'],
+                ['humiditySlider', 'humidityValue', planetData.climate.humidity, 0, '%'],
+                ['cloudsSlider', 'cloudsValue', planetData.climate.cloudCover, 0, '%'],
+                ['seasonsSlider', 'seasonsValue', planetData.climate.seasons, 0, ''],
+                ['precipitationSlider', 'precipitationValue', planetData.climate.precipitation, 0, ''],
+                ['windSlider', 'windValue', planetData.climate.wind, 0, '']
+            ];
+            
+            sliders.forEach(([sliderId, valueId, value, decimals, suffix]) => {
+                const slider = document.getElementById(sliderId);
+                const valueElement = document.getElementById(valueId);
+                
+                if (slider) slider.value = value;
+                
+                if (valueElement) {
+                    if (decimals === 0) {
+                        valueElement.textContent = getTextValue(sliderId, value) + suffix;
+                    } else {
+                        valueElement.textContent = value.toFixed(decimals) + suffix;
+                    }
+                }
+                
+                // Триггерим событие input для обновления данных
+                if (slider) slider.dispatchEvent(new Event('input'));
+            });
+        }
+        
+        function getTextValue(sliderId, value) {
+            switch(sliderId) {
+                case 'tectonicsSlider':
+                    return value < 20 ? 'Слабая' : value < 40 ? 'Умеренная' : 
+                           value < 60 ? 'Средняя' : value < 80 ? 'Высокая' : 'Экстремальная';
+                case 'volcanismSlider':
+                    return value < 20 ? 'Слабый' : value < 40 ? 'Умеренный' : 
+                           value < 60 ? 'Средний' : value < 80 ? 'Активный' : 'Очень активный';
+                case 'radioactivitySlider':
+                    return value < 10 ? 'Очень низкая' : value < 30 ? 'Низкая' : 
+                           value < 50 ? 'Средняя' : value < 70 ? 'Высокая' : 'Опасная';
+                case 'seasonsSlider':
+                    return value < 20 ? 'Отсутствуют' : value < 40 ? 'Слабые' : 
+                           value < 60 ? 'Умеренные' : value < 80 ? 'Сильные' : 'Экстремальные';
+                case 'greenhouseValue':
+                    return value < 20 ? 'Слабый' : value < 40 ? 'Умеренный' : 
+                           value < 60 ? 'Сильный' : value < 80 ? 'Очень сильный' : 'Экстремальный';
+                case 'precipitationValue':
+                    return value < 20 ? 'Очень низкие' : value < 40 ? 'Низкие' : 
+                           value < 60 ? 'Средние' : value < 80 ? 'Высокие' : 'Очень высокие';
+                case 'windValue':
+                    return value < 20 ? 'Слабая' : value < 40 ? 'Умеренная' : 
+                           value < 60 ? 'Сильная' : value < 80 ? 'Очень сильная' : 'Экстремальная';
+                default:
+                    return Math.round(value).toString();
+            }
+        }
+        
+        function simulateClimateChange() {
+            const originalCo2 = planetData.atmosphere.co2;
+            const originalTemp = planetData.climate.temperature;
+            
+            // Увеличение CO2 и парниковых газов
+            const co2Increase = 5 + Math.random() * 15;
+            planetData.atmosphere.co2 += co2Increase;
+            
+            const greenhouseIncrease = 20 + Math.random() * 30;
+            planetData.atmosphere.greenhouse += greenhouseIncrease;
+            
+            // Повышение температуры
+            const tempIncrease = co2Increase * 0.8 + greenhouseIncrease * 0.1;
+            planetData.climate.temperature += tempIncrease;
+            
+            // Изменение других параметров
+            planetData.climate.humidity *= 0.7;
+            planetData.climate.cloudCover += 10;
+            planetData.climate.precipitation *= 0.8;
+            planetData.climate.wind += 20;
+            
+            // Обновление интерфейса
+            updateSlidersToCurrentData();
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification(
+                `🌡️ КЛИМАТИЧЕСКИЙ СДВИГ!\n` +
+                `Температура: +${tempIncrease.toFixed(1)}°C\n` +
+                `CO₂: ${originalCo2.toFixed(2)}% → ${planetData.atmosphere.co2.toFixed(2)}%\n` +
+                `Парниковый эффект усилился на ${Math.round(greenhouseIncrease)}%`
+            );
+        }
+        
+        function stabilizeClimate() {
+            // Стабилизация климата
+            const currentTemp = planetData.climate.temperature;
+            const targetTemp = 15;
+            const tempChange = (targetTemp - currentTemp) * 0.5;
+            
+            planetData.climate.temperature += tempChange;
+            planetData.atmosphere.co2 = Math.max(0.01, planetData.atmosphere.co2 * 0.7);
+            planetData.atmosphere.greenhouse *= 0.6;
+            planetData.climate.humidity = 60;
+            planetData.climate.cloudCover = 40;
+            planetData.climate.precipitation = 50;
+            planetData.climate.wind = 40;
+            
+            updateSlidersToCurrentData();
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification(`Климат стабилизирован! Температура: ${currentTemp.toFixed(1)}°C → ${planetData.climate.temperature.toFixed(1)}°C`);
+        }
+        
+        function startEvolution() {
+            if (planetData.life.evolutionStage === 0) {
+                planetData.life.evolutionStage = 1;
+                planetData.time = 1000000; // 1 миллион лет
+                
+                // Генерация первых видов
+                generateInitialSpecies();
+                
+                updateLifeDisplay();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification('🧬 ЭВОЛЮЦИЯ ЗАПУЩЕНА!\nПервые микроорганизмы появились на планете.');
+            } else {
+                showNotification('Эволюция уже началась! Используйте ускорение эволюции для прогресса.');
+            }
+        }
+        
+        function generateInitialSpecies() {
+            const numSpecies = 3 + Math.floor(Math.random() * 5);
+            planetData.life.species = [];
+            
+            for (let i = 0; i < numSpecies; i++) {
+                const template = speciesTemplates[Math.floor(Math.random() * speciesTemplates.length)];
+                const species = {
+                    ...template,
+                    id: 'species_' + Date.now() + '_' + i,
+                    population: Math.floor(Math.random() * 1000000) + 1000,
+                    discovered: new Date().toLocaleDateString(),
+                    traits: generateRandomTraits(),
+                    evolutionSpeed: 1,
+                    age: 0
+                };
+                planetData.life.species.push(species);
+            }
+            
+            planetData.life.biodiversity = planetData.life.species.length;
+        }
+        
+        function generateRandomTraits() {
+            const traits = [];
+            const possibleTraits = [
+                'Фотосинтез', 'Хемосинтез', 'Биолюминесценция', 'Телепатия',
+                'Телекинез', 'Регенерация', 'Невидимость', 'Электрогенез',
+                'Магниторецепция', 'Криокинез', 'Пирокинез', 'Адаптация',
+                'Симбиоз', 'Паразитизм', 'Хищничество', 'Травоядность',
+                'Всеядность', 'Колониальность', 'Индивидуальность', 'Коллективный разум',
+                'Биоплазменная форма', 'Квантовая когерентность', 'Хронопластичность',
+                'Многомерное восприятие', 'Энергетический метаболизм'
+            ];
+            
+            const numTraits = 2 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < numTraits; i++) {
+                const trait = possibleTraits[Math.floor(Math.random() * possibleTraits.length)];
+                if (!traits.includes(trait)) {
+                    traits.push(trait);
+                }
+            }
+            
+            return traits;
+        }
+        
+        function seedLife() {
+            if (planetData.life.evolutionStage === 0) {
+                // Добавляем микроорганизмы
+                const microbe = {
+                    name: "Космические археи",
+                    type: "microbe",
+                    color: "#66ffcc",
+                    complexity: 1,
+                    id: 'microbe_' + Date.now(),
+                    population: 1000000000,
+                    discovered: new Date().toLocaleDateString(),
+                    traits: ['Экстремофилия', 'Быстрое размножение', 'Радиорезистентность'],
+                    evolutionSpeed: 1.5,
+                    age: 0
+                };
+                
+                planetData.life.species.push(microbe);
+                planetData.life.biodiversity = 1;
+                planetData.life.evolutionStage = 0.5; // Стадия зарождения
+                
+                updateLifeDisplay();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification('🔬 МИКРООРГАНИЗМЫ ЗАНЕСЕНЫ!\nПланета заселена экстремофильными археями.');
+            } else {
+                showNotification('Жизнь уже существует на планете! Используйте "Ввести новый вид" для разнообразия.');
+            }
+        }
+        
+        function resetLife() {
+            if (confirm('Вы уверены, что хотите уничтожить всю жизнь на планете? Это действие нельзя отменить.')) {
+                planetData.life = {
+                    biodiversity: 0,
+                    evolutionStage: 0,
+                    species: [],
+                    evolutionSpeed: 1
+                };
+                
+                updateLifeDisplay();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification('💀 ВСЯ ЖИЗНЬ УНИЧТОЖЕНА!\nПланета стерилизована. Можно начать заново.');
+            }
+        }
+        
+        function introduceSpecies() {
+            if (planetData.life.evolutionStage > 0) {
+                const template = speciesTemplates[Math.floor(Math.random() * speciesTemplates.length)];
+                const species = {
+                    ...template,
+                    id: 'introduced_' + Date.now(),
+                    population: Math.floor(Math.random() * 100000) + 100,
+                    discovered: new Date().toLocaleDateString(),
+                    traits: generateRandomTraits(),
+                    introduced: true,
+                    evolutionSpeed: 1.2,
+                    age: 0
+                };
+                
+                planetData.life.species.push(species);
+                planetData.life.biodiversity = planetData.life.species.length;
+                
+                updateLifeDisplay();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification(`🦠 НОВЫЙ ВИД ВВЕДЕН!\n"${species.name}" успешно акклиматизировался.`);
+            } else {
+                showNotification('Сначала запустите эволюцию или занесите микроорганизмы!');
+            }
+        }
+        
+        function accelerateEvolution() {
+            if (planetData.life.evolutionStage > 0) {
+                planetData.life.evolutionSpeed *= 2;
+                planetData.time += 5000000; // Добавляем 5 млн лет эволюции
+                
+                // Увеличиваем сложность существующих видов
+                planetData.life.species.forEach(species => {
+                    if (species.complexity < 12) {
+                        species.complexity += Math.floor(Math.random() * 2);
+                        species.population *= 1.5;
+                        species.age += 1000000;
+                        
+                        // Добавляем новые черты
+                        if (Math.random() > 0.7) {
+                            const newTrait = generateRandomTraits()[0];
+                            if (!species.traits.includes(newTrait)) {
+                                species.traits.push(newTrait);
+                            }
+                        }
+                    }
+                });
+                
+                // Шанс на появление нового вида
+                if (Math.random() > 0.5) {
+                    introduceSpecies();
+                }
+                
+                updateLifeDisplay();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification(`⚡ ЭВОЛЮЦИЯ УСКОРЕНА!\nПрошло 5 млн лет. Виды стали сложнее и многочисленнее.`);
+            } else {
+                showNotification('Сначала запустите эволюцию!');
+            }
+        }
+        
+        function massExtinction() {
+            if (planetData.life.species.length > 0) {
+                if (confirm('Массовое вымирание уничтожит 70% видов. Продолжить?')) {
+                    // Уничтожаем 70% видов
+                    const survivors = Math.max(1, Math.floor(planetData.life.species.length * 0.3));
+                    
+                    // Сохраняем самые сложные и адаптированные виды
+                    planetData.life.species.sort((a, b) => {
+                        const scoreA = a.complexity * 2 + (a.traits.length * 0.5);
+                        const scoreB = b.complexity * 2 + (b.traits.length * 0.5);
+                        return scoreB - scoreA;
+                    });
+                    
+                    planetData.life.species = planetData.life.species.slice(0, survivors);
+                    
+                    // Уменьшаем популяцию
+                    planetData.life.species.forEach(species => {
+                        species.population = Math.floor(species.population * 0.1);
+                        species.age += 10000000; // Добавляем 10 млн лет к возрасту
+                    });
+                    
+                    planetData.life.biodiversity = planetData.life.species.length;
+                    
+                    updateLifeDisplay();
+                    updatePredictions();
+                    updateHUD();
+                    
+                    showNotification(`☄️ МАССОВОЕ ВЫМИРАНИЕ!\nВыжило ${survivors} наиболее адаптированных видов.`);
+                }
+            } else {
+                showNotification('На планете нет жизни для вымирания!');
+            }
+        }
+        
+        function triggerMutation() {
+            if (planetData.life.species.length > 0) {
+                const randomSpecies = planetData.life.species[Math.floor(Math.random() * planetData.life.species.length)];
+                const newTrait = generateRandomTraits()[0];
+                
+                if (!randomSpecies.traits.includes(newTrait)) {
+                    randomSpecies.traits.push(newTrait);
+                    randomSpecies.population *= 1.2;
+                    
+                    showNotification(`🧪 МУТАЦИЯ!\nВид "${randomSpecies.name}" развил способность: ${newTrait}`);
+                }
+            } else {
+                showNotification('Сначала создайте жизнь на планете!');
+            }
+        }
+        
+        function createSymbiosis() {
+            if (planetData.life.species.length >= 2) {
+                const species1 = planetData.life.species[Math.floor(Math.random() * planetData.life.species.length)];
+                const species2 = planetData.life.species[Math.floor(Math.random() * planetData.life.species.length)];
+                
+                if (species1 !== species2) {
+                    species1.population *= 1.3;
+                    species2.population *= 1.3;
+                    
+                    showNotification(`🤝 СИМБИОЗ!\n"${species1.name}" и "${species2.name}" вступили в симбиотические отношения.`);
+                }
+            } else {
+                showNotification('Нужно как минимум 2 вида для симбиоза!');
+            }
+        }
+        
+        function openLifeStudy() {
+            if (planetData.life.species.length > 0) {
+                const container = document.getElementById('speciesList');
+                container.innerHTML = '';
+                
+                planetData.life.species.forEach((species, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'species-card';
+                    card.innerHTML = `
+                        <div class="species-image" style="background: linear-gradient(45deg, ${species.color}, ${adjustColor(species.color, 50)})">
+                            ${getSpeciesEmoji(species.type)}
+                        </div>
+                        <h4>${species.name}</h4>
+                        <p>Тип: ${getTypeName(species.type)}</p>
+                        <p>Популяция: ${formatNumber(species.population)}</p>
+                        <p>Сложность: ${'★'.repeat(species.complexity)}${'☆'.repeat(12 - species.complexity)}</p>
+                        <p>Возраст: ${formatNumber(species.age || 0)} лет</p>
+                        <p style="font-size: 11px; color: #888;">${species.traits.slice(0, 2).join(', ')}...</p>
+                    `;
+                    card.onclick = () => showSpeciesDetails(species);
+                    container.appendChild(card);
+                });
+                
+                document.getElementById('lifeStudyPanel').style.display = 'block';
+            } else {
+                showNotification('На планете еще нет обнаруженных видов! Запустите эволюцию.');
+            }
+        }
+        
+        function showSpeciesDetails(species) {
+            const traits = species.traits.join('\n• ');
+            const message = `
+🧬 ${species.name}
+
+Тип: ${getTypeName(species.type)}
+Популяция: ${formatNumber(species.population)}
+Сложность эволюции: ${species.complexity}/12
+Возраст вида: ${formatNumber(species.age || 0)} лет
+${species.introduced ? '★ Искусственно введен' : '☆ Естественная эволюция'}
+
+Особенности:
+• ${traits}
+
+${species.traits.length > 10 ? '🎯 Высокоадаптированный вид' : '🌱 Базовая адаптация'}
+            `;
+            
+            showNotification(message);
+        }
+        
+        function closeLifeStudy() {
+            document.getElementById('lifeStudyPanel').style.display = 'none';
+        }
+        
+        function analyzeEcosystem() {
+            if (planetData.life.species.length > 0) {
+                let totalPopulation = 0;
+                let avgComplexity = 0;
+                let maxComplexity = 0;
+                
+                planetData.life.species.forEach(species => {
+                    totalPopulation += species.population;
+                    avgComplexity += species.complexity;
+                    if (species.complexity > maxComplexity) {
+                        maxComplexity = species.complexity;
+                    }
+                });
+                
+                avgComplexity = Math.round(avgComplexity / planetData.life.species.length);
+                
+                showNotification(
+                    `📊 АНАЛИЗ ЭКОСИСТЕМЫ:\n\n` +
+                    `Всего видов: ${planetData.life.biodiversity}\n` +
+                    `Общая популяция: ${formatNumber(totalPopulation)}\n` +
+                    `Средняя сложность: ${avgComplexity}/12\n` +
+                    `Макс. сложность: ${maxComplexity}/12\n` +
+                    `Стадия эволюции: ${getEvolutionStageName(planetData.life.evolutionStage)}`
+                );
+            } else {
+                showNotification('Экосистема не сформирована. Создайте жизнь на планете!');
+            }
+        }
+        
+        function getEvolutionStageName(stage) {
+            if (stage === 0) return 'Отсутствует';
+            if (stage === 0.5) return 'Микроорганизмы';
+            if (stage === 1) return 'Простейшие';
+            if (stage === 2) return 'Многоклеточные';
+            if (stage === 3) return 'Сложные формы';
+            if (stage === 4) return 'Разумные существа';
+            if (stage === 5) return 'Цивилизация';
+            return 'Неизвестная стадия';
+        }
+        
+        function adjustColor(color, amount) {
+            let usePound = false;
+            
+            if (color[0] === "#") {
+                color = color.slice(1);
+                usePound = true;
+            }
+            
+            const num = parseInt(color, 16);
+            let r = (num >> 16) + amount;
+            let g = ((num >> 8) & 0x00FF) + amount;
+            let b = (num & 0x0000FF) + amount;
+            
+            r = Math.min(Math.max(0, r), 255);
+            g = Math.min(Math.max(0, g), 255);
+            b = Math.min(Math.max(0, b), 255);
+            
+            return (usePound ? "#" : "") + (b | (g << 8) | (r << 16)).toString(16).padStart(6, '0');
+        }
+        
+        function getSpeciesEmoji(type) {
+            const emojis = {
+                microbe: '🦠',
+                aquatic: '🐠',
+                reptile: '🦎',
+                plant: '🌿',
+                avian: '🦅',
+                mammal: '🐾',
+                fungi: '🍄',
+                crystal: '💎',
+                energy: '⚡',
+                insect: '🐛',
+                mollusk: '🐌',
+                cyborg: '🤖',
+                amphibian: '🐸'
+            };
+            return emojis[type] || '👽';
+        }
+        
+        function getTypeName(type) {
+            const names = {
+                microbe: 'Микроорганизм',
+                aquatic: 'Водное',
+                reptile: 'Рептилия',
+                plant: 'Растение',
+                avian: 'Птица',
+                mammal: 'Млекопитающее',
+                fungi: 'Гриб',
+                crystal: 'Кристаллическое',
+                energy: 'Энергетическое',
+                insect: 'Насекомое',
+                mollusk: 'Моллюск',
+                cyborg: 'Кибернетическое',
+                amphibian: 'Амфибия'
+            };
+            return names[type] || 'Неизвестно';
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000000) return (num / 1000000000).toFixed(1) + ' млрд';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + ' млн';
+            if (num >= 1000) return (num / 1000).toFixed(1) + ' тыс';
+            return num.toString();
+        }
+        
+        function updateLifeDisplay() {
+            document.getElementById('biodiversity').textContent = planetData.life.biodiversity + ' видов';
+            document.getElementById('planetTime').textContent = formatNumber(planetData.time) + ' лет';
+            document.getElementById('evolutionStage').textContent = getEvolutionStageName(planetData.life.evolutionStage);
+        }
+        
+        function updateHUD() {
+            updateLifeDisplay();
+            document.getElementById('temperatureDisplay').textContent = planetData.climate.temperature.toFixed(1) + '°C';
+            document.getElementById('stability').textContent = planetData.stability + '%';
+            
+            // Обновление прогресса времени
+            const timeProgress = (planetData.time % 10000000) / 10000000 * 100;
+            document.getElementById('timeProgress').style.width = timeProgress + '%';
+        }
+        
+        function calculateAllProbabilities() {
+            // Тщательный пересчет всех вероятностей
+            updatePredictions();
+            showNotification('🔮 Все прогнозы пересчитаны с учетом текущих условий планеты!');
+        }
+        
+        function showProbabilityFactors() {
+            const factors = `
+📈 ФАКТОРЫ ВЛИЯНИЯ НА ПРОГНОЗЫ:
+
+🌡️ Температура: ${planetData.climate.temperature}°C
+   • Идеально: 0-30°C (+)
+   • Экстремально: < -20°C или > 60°C (-)
+
+💨 Атмосфера:
+   • Кислород: ${planetData.atmosphere.oxygen}% (идеально 21%)
+   • Давление: ${planetData.atmosphere.pressure} атм (идеально 1 атм)
+
+🛡️ Защита:
+   • Магнитное поле: ${planetData.geology.magneticField}x Земли
+   • Радиоактивность: ${planetData.geology.radioactivity}%
+
+🌍 Стабильность: ${planetData.stability}%
+   • Высокая стабильность критична для сложной жизни
+            `;
+            
+            showNotification(factors);
+        }
+        
+        function optimizeForCivilization() {
+            // Установка параметров, благоприятных для цивилизации
+            planetData.atmosphere.oxygen = 21;
+            planetData.atmosphere.co2 = 0.04;
+            planetData.atmosphere.pressure = 1;
+            
+            planetData.climate.temperature = 15;
+            planetData.climate.humidity = 60;
+            planetData.climate.seasons = 50;
+            
+            planetData.geology.magneticField = 1.0;
+            planetData.geology.tectonics = 50;
+            planetData.geology.radioactivity = 10;
+            planetData.geology.gravity = 1.0;
+            
+            updateSlidersToCurrentData();
+            
+            updateNitrogen();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('🏙️ Параметры оптимизированы для развития технологической цивилизации!');
+        }
+        
+        function saveSimulation() {
+            const data = {
+                ...planetData,
+                timestamp: new Date().toISOString(),
+                telegramId: tg.initDataUnsafe.user?.id,
+                version: '1.0.0'
+            };
+            
+            // Отправка данных в бот
+            tg.sendData(JSON.stringify(data));
+            
+            showNotification('💾 Симуляция сохранена успешно!\nДанные отправлены в Telegram бот.');
+        }
+        
+        function togglePredictions() {
+            const panel = document.getElementById('predictionPanel');
+            const toggle = document.getElementById('predictionsToggle');
+            
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                toggle.innerHTML = '🔮';
+                toggle.classList.add('pulse');
+            } else {
+                panel.classList.add('active');
+                toggle.innerHTML = '📊';
+                toggle.classList.remove('pulse');
+                updatePredictions(); // Обновляем прогнозы при открытии
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.style.display = 'block';
+        }
+        
+        function closeNotification() {
+            document.getElementById('notification').style.display = 'none';
+        }
+        
+        function switchTab(tabName) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показываем выбранную вкладку
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+                document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            }
+        }
+        
+        function pauseSimulation() {
+            planetData.isPaused = !planetData.isPaused;
+            const button = document.querySelector('.quick-controls .quick-button:first-child');
+            if (planetData.isPaused) {
+                button.innerHTML = '▶️ Продолжить';
+                showNotification('⏸️ Симуляция приостановлена');
+            } else {
+                button.innerHTML = '⏸️ Пауза';
+                showNotification('▶️ Симуляция продолжена');
+            }
+        }
+        
+        function speedUpTime() {
+            planetData.timeSpeed *= 2;
+            if (planetData.timeSpeed > 8) planetData.timeSpeed = 1;
+            
+            const speeds = ['1x', '2x', '4x', '8x'];
+            const speedIndex = Math.log2(planetData.timeSpeed);
+            
+            showNotification(`⏩ Скорость времени: ${speeds[speedIndex]}`);
+        }
+        
+        function takeScreenshot() {
+            // В реальном приложении здесь был бы код для создания скриншота
+            showNotification('📸 Снимок планеты создан! (В полной версии сохраняется в галерею)');
+        }
+        
+        function resetToEarth() {
+            if (confirm('Сбросить все параметры к земным значениям?')) {
+                planetData.name = "Земля";
+                planetData.atmosphere = { oxygen: 21, nitrogen: 78, co2: 0.04, methane: 0.0002, pressure: 1, greenhouse: 10 };
+                planetData.geology = { tectonics: 50, volcanism: 30, magneticField: 1.0, radioactivity: 10, gravity: 1.0 };
+                planetData.climate = { temperature: 15, humidity: 60, cloudCover: 40, seasons: 50, precipitation: 50, wind: 40 };
+                
+                updateSlidersToCurrentData();
+                
+                updateNitrogen();
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification('🌍 Параметры сброшены к земным значениям!');
+            }
+        }
+        
+        // Расширенные функции симуляции
+        function simulateEarthquake() {
+            planetData.geology.tectonics += 30;
+            if (planetData.geology.tectonics > 100) planetData.geology.tectonics = 100;
+            
+            updateSlidersToCurrentData();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('🌋 Имитировано сильное землетрясение! Тектоническая активность увеличилась.');
+        }
+        
+        function simulateMeteorImpact() {
+            if (confirm('Метеоритный удар вызовет массовое вымирание. Продолжить?')) {
+                planetData.climate.temperature += 20;
+                planetData.atmosphere.co2 += 10;
+                planetData.climate.cloudCover = 100;
+                planetData.stability -= 40;
+                
+                // Уничтожаем большую часть жизни
+                if (planetData.life.species.length > 0) {
+                    massExtinction();
+                }
+                
+                updateSlidersToCurrentData();
+                updatePlanetColor();
+                updatePredictions();
+                updateHUD();
+                
+                showNotification('💥 ГИГАНТСКИЙ МЕТЕОРИТ!\nКлимат нарушен, началось массовое вымирание.');
+            }
+        }
+        
+        function simulateSupervolcano() {
+            planetData.geology.volcanism = 100;
+            planetData.atmosphere.co2 += 15;
+            planetData.climate.temperature += 10;
+            planetData.climate.cloudCover = 100;
+            
+            updateSlidersToCurrentData();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('🌋 АКТИВИРОВАЛСЯ СУПЕРВУЛКАН!\nАтмосфера заполнена пеплом, началась вулканическая зима.');
+        }
+        
+        function simulateGammaRayBurst() {
+            planetData.geology.radioactivity = 100;
+            planetData.atmosphere.oxygen *= 0.5;
+            planetData.stability -= 60;
+            
+            // Уничтожаем всю сложную жизнь
+            if (planetData.life.species.length > 0) {
+                planetData.life.species = planetData.life.species.filter(s => s.complexity <= 2);
+                planetData.life.biodiversity = planetData.life.species.length;
+                updateLifeDisplay();
+            }
+            
+            updateSlidersToCurrentData();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('☢️ ГАММА-ВСПЛЕСК!\nРадиация достигла смертельного уровня, озоновый слой уничтожен.');
+        }
+        
+        function changeOrbit() {
+            const newTemp = -50 + Math.random() * 150;
+            planetData.climate.temperature = newTemp;
+            
+            updateSlidersToCurrentData();
+            updatePlanetColor();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification(`🛰️ Орбита изменена! Новая температура: ${newTemp.toFixed(1)}°C`);
+        }
+        
+        function addMoon() {
+            showNotification('🌕 Спутник добавлен! Стабилизированы сезоны и приливы.');
+            planetData.climate.seasons = 50;
+            updateSlidersToCurrentData();
+            updatePredictions();
+        }
+        
+        function simulateSolarFlare() {
+            planetData.geology.magneticField *= 0.7;
+            planetData.atmosphere.oxygen *= 0.9;
+            
+            updateSlidersToCurrentData();
+            updatePredictions();
+            updateHUD();
+            
+            showNotification('☀️ СОЛНЕЧНАЯ ВСПЫШКА!\nМагнитное поле ослаблено, атмосфера повреждена.');
+        }
+        
+        function buildMegastructure() {
+            showNotification('🏗️ Мегаструктура построена! Технологический уровень повышен.');
+            // В полной версии это влияло бы на прогнозы
+        }
+        
+        function terraformPlanet() {
+            optimizeForLife();
+            showNotification('🌍 Процесс терраформирования запущен! Планета становится обитаемой.');
+        }
+        
+        function buildSpaceElevator() {
+            showNotification('🚀 КОСМИЧЕСКИЙ ЛИФТ ПОСТРОЕН!\nВыход в космос упрощен на 50%.');
+            // Увеличиваем вероятность выхода в космос
+            const spaceProb = parseFloat(document.getElementById('spaceProb').textContent);
+            document.getElementById('spaceProb').textContent = Math.min(100, Math.round(spaceProb * 1.5)) + '%';
+            document.getElementById('spaceBar').style.width = Math.min(100, spaceProb * 1.5) + '%';
+        }
+        
+        function openAdvancedSettings() {
+            showNotification('⚙️ Расширенные параметры:\n• Точность расчетов: Высокая\n• Физическая модель: Реалистичная\n• Детализация: Максимальная');
+        }
+        
+        function exportPlanetData() {
+            const dataStr = JSON.stringify(planetData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `planet_simulation_${Date.now()}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('📤 Данные планеты экспортированы в JSON файл!');
+        }
+        
+        function importPlanetData() {
+            showNotification('📥 Функция импорта будет доступна в полной версии приложения!');
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (!planetData.isPaused) {
+                // Вращение планеты
+                if (planet) {
+                    planet.rotation.y += 0.001 * planetData.timeSpeed;
+                }
+                
+                // Обновление времени
+                if (planetData.life.evolutionStage > 0) {
+                    planetData.time += 1000 * planetData.timeSpeed;
+                    
+                    // Эволюционные события
+                    if (planetData.time % (1000000 / planetData.timeSpeed) < 1000) {
+                        // Каждые 1 млн лет (с учетом скорости)
+                        if (planetData.life.species.length > 0) {
+                            // Старение видов
+                            planetData.life.species.forEach(species => {
+                                species.age += 1000000;
+                                
+                                // Естественный рост/снижение популяции
+                                const growthFactor = 0.9 + Math.random() * 0.3;
+                                species.population = Math.floor(species.population * growthFactor);
+                                
+                                // Шанс на эволюцию
+                                if (Math.random() < 0.05 && species.complexity < 12) {
+                                    species.complexity += 1;
+                                }
+                            });
+                            
+                            // Шанс на появление нового вида
+                            if (Math.random() < 0.1) {
+                                introduceSpecies();
+                            }
+                            
+                            updateLifeDisplay();
+                        }
+                    }
+                }
+                
+                updateHUD();
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        // Инициализация при загрузке
+        window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-</html>
+    </html>

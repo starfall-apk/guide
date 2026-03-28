@@ -2,12 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BlackSakura VPN</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-    <!-- Google Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
@@ -29,16 +28,25 @@
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            /* Запрет выделения текста и системных жестов */
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Полная блокировка прокрутки */
+            position: fixed; /* Фиксация вьюпорта */
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-primary);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
         }
 
         /* --- ИКОНКИ --- */

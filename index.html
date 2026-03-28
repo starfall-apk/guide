@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Богдан Простаткин | Developer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,16 +18,7 @@
 
     <div class="main-container">
         <header class="glass-profile">
-            <div class="lottie-box">
-                <lottie-player 
-                    src="black_sakura.json"  
-                    background="transparent"  
-                    speed="1"  
-                    style="width: 200px; height: 200px;"  
-                    loop  
-                    autoplay>
-                </lottie-player>
-            </div>
+            <div id="lottie-sticker" class="lottie-box"></div>
             
             <h1 class="title">Богдан Простаткин</h1>
             <p class="subtitle">Дмитриевич</p>
@@ -40,24 +31,21 @@
             </p>
 
             <div class="actions">
-                <a href="https://t.me/wf9ll" target="_blank" class="btn btn-filled">Написать мне</a>
-                <a href="#projects" class="btn btn-outline">Портфолио</a>
+                <a href="https://t.me/ТВОЙ_ЛОГИН" target="_blank" class="btn btn-filled">Написать мне</a>
+                <a href="portfolio.html" class="btn btn-outline">Портфолио</a>
             </div>
         </header>
-
-        <div class="portfolio-grid" id="projects">
-            <div class="card">
-                <div class="card-icon">🐍</div>
-                <h3>Backend Bots</h3>
-                <p>Разработка сложных Telegram-ботов на Python и Telethon.</p>
-            </div>
-            <div class="card">
-                <div class="card-icon">🎨</div>
-                <h3>Web Design</h3>
-                <p>Интерфейсы с эффектом Glassmorphism и плавной анимацией.</p>
-            </div>
-        </div>
     </div>
+
+    <script>
+        lottie.loadAnimation({
+            container: document.getElementById('lottie-sticker'), // ID контейнера
+            renderer: 'svg', // Рендерим в SVG для четкости и скорости
+            loop: true,
+            autoplay: true,
+            path: 'black_sakura.json' // Путь к файлу
+        });
+    </script>
 
 </body>
 </html>

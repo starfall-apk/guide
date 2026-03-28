@@ -3,51 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Богдан Простаткин | Web Developer</title>
+    <title>Богдан Простаткин | Developer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="bg-gradient">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+    <div class="bg-wrapper">
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+        <div class="glow-sphere sphere-3"></div>
     </div>
 
-    <div class="container">
-        <header class="glass-card">
-            <div class="lottie-container">
+    <div class="main-container">
+        <header class="glass-profile">
+            <div class="lottie-box">
                 <lottie-player 
                     src="black_sakura.json"  
                     background="transparent"  
                     speed="1"  
-                    style="width: 180px; height: 180px;"  
+                    style="width: 200px; height: 200px;"  
                     loop  
                     autoplay>
                 </lottie-player>
             </div>
             
-            <h1 class="name">Богдан Простаткин</h1>
-            <p class="surname-patronymic">Дмитриевич</p>
-            <div class="badge">Professional Web Developer</div>
+            <h1 class="title">Богдан Простаткин</h1>
+            <p class="subtitle">Дмитриевич</p>
             
-            <p class="description">
-                Создаю цифровые интерфейсы с акцентом на эстетику Apple и функциональность Telegram.
+            <div class="status-pill">Fullstack Developer</div>
+            
+            <p class="bio">
+                Специализируюсь на создании современных интерфейсов и автоматизации систем. 
+                Эстетика iOS, мощь Python и чистота кода.
             </p>
 
-            <div class="button-group">
-                <a href="#" class="btn primary">Написать мне</a>
-                <a href="#" class="btn secondary">Портфолио</a>
+            <div class="actions">
+                <a href="https://t.me/ТВОЙ_ЛОГИН" target="_blank" class="btn btn-filled">Написать мне</a>
+                <a href="#projects" class="btn btn-outline">Портфолио</a>
             </div>
         </header>
 
-        <section class="skills">
-            <div class="mini-glass">Frontend</div>
-            <div class="mini-glass">UI/UX Design</div>
-            <div class="mini-glass">Telegram Bots</div>
-        </section>
+        <div class="portfolio-grid" id="projects">
+            <div class="card">
+                <div class="card-icon">🐍</div>
+                <h3>Backend Bots</h3>
+                <p>Разработка сложных Telegram-ботов на Python и Telethon.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Web Design</h3>
+                <p>Интерфейсы с эффектом Glassmorphism и плавной анимацией.</p>
+            </div>
+        </div>
     </div>
 
 </body>

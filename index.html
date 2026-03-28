@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlackSakura VPN</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
+
     <style>
         :root {
             --bg-dark: #050505;
@@ -22,7 +28,6 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
-            /* Убираем синюю подсветку при тапе на мобильных везде */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -36,7 +41,14 @@
             overflow: hidden;
         }
 
-        /* --- Оптимизированный фон (GPU ускорение) --- */
+        /* --- ИКОНКИ --- */
+        .material-symbols-rounded {
+            font-size: 16px;
+            vertical-align: middle;
+            color: var(--text-secondary);
+        }
+
+        /* --- ФОН --- */
         .bg-wrapper {
             position: fixed;
             top: 0;
@@ -45,7 +57,7 @@
             height: 100%;
             z-index: -1;
             filter: blur(60px); 
-            transform: translateZ(0); /* Форсируем GPU */
+            transform: translateZ(0);
             will-change: transform;
         }
 
@@ -66,7 +78,6 @@
             100% { transform: translate3d(30px, 50px, 0) scale(1.05); }
         }
 
-        /* --- Интерфейс --- */
         .main-container {
             width: 90%;
             max-width: 420px;
@@ -85,7 +96,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            transform: translateZ(0); /* Фикс артефактов размытия в Safari */
+            transform: translateZ(0);
         }
 
         .app-title {
@@ -100,11 +111,8 @@
             font-weight: 600;
             color: var(--text-secondary);
             margin-bottom: 30px;
-            transition: color 0.4s ease;
-            will-change: color;
         }
 
-        /* --- Плавная Кнопка-Стикер --- */
         .vpn-btn-wrapper {
             width: 170px;
             height: 170px;
@@ -115,46 +123,22 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            /* Плавная кривая анимации в стиле Apple */
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             position: relative;
             margin-bottom: 35px;
-            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02), 
-                        0 15px 30px rgba(0, 0, 0, 0.3);
-            transform: translateZ(0);
-            outline: none;
-        }
-
-        .vpn-btn-wrapper:hover {
-            transform: scale(1.03) translateZ(0);
-            background: rgba(255, 255, 255, 0.04);
-        }
-
-        .vpn-btn-wrapper:active {
-            transform: scale(0.95) translateZ(0);
-            transition: all 0.2s ease; /* Быстрое сжатие при тапе */
         }
 
         .vpn-btn-wrapper.connected {
             border-color: var(--accent-green);
             box-shadow: 0 0 45px var(--btn-glow), 
                         inset 0 0 25px var(--btn-glow);
-            animation: pulse-glow 3s infinite alternate ease-in-out;
-        }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 30px var(--btn-glow), inset 0 0 15px var(--btn-glow); }
-            100% { box-shadow: 0 0 50px var(--btn-glow), inset 0 0 30px var(--btn-glow); }
         }
 
         #lottie-sticker {
             width: 130px;
             height: 130px;
-            pointer-events: none;
-            transform: translate3d(0,0,0); /* Аппаратное ускорение стикера */
         }
 
-        /* --- Расширенная статистика --- */
         .info-panel {
             width: 100%;
             display: flex;
@@ -171,7 +155,6 @@
             padding: 16px 20px;
             border-radius: 20px;
             font-size: 14px;
-            transition: background 0.3s ease;
         }
 
         .stats-grid {
@@ -186,10 +169,6 @@
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            transition: opacity 0.4s ease, filter 0.4s ease;
         }
 
         .stat-label {
@@ -204,177 +183,183 @@
         .stat-value {
             font-size: 18px;
             font-weight: 800;
-            font-variant-numeric: tabular-nums; /* Цифры не будут "прыгать" при изменении ширины */
         }
 
-        /* Состояния сокрытия данных */
         .data-hidden {
             opacity: 0.4;
             filter: blur(3px);
         }
+
         .data-visible {
             opacity: 1;
             filter: blur(0);
         }
-
     </style>
 </head>
+
 <body>
 
-    <div class="bg-wrapper">
-        <div class="glow-sphere sphere-1"></div>
-        <div class="glow-sphere sphere-2"></div>
-        <div class="glow-sphere sphere-3"></div>
-    </div>
+<div class="bg-wrapper">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+    <div class="glow-sphere sphere-3"></div>
+</div>
 
-    <div class="main-container">
-        <div class="glass-profile">
-            <h1 class="app-title">BlackSakura VPN</h1>
-            <div class="status-text" id="statusText">Не подключено</div>
+<div class="main-container">
+    <div class="glass-profile">
+        <h1 class="app-title">BlackSakura VPN</h1>
+        <div class="status-text" id="statusText">Не подключено</div>
 
-            <div class="vpn-btn-wrapper" id="vpnButton">
-                <div id="lottie-sticker"></div>
+        <div class="vpn-btn-wrapper" id="vpnButton">
+            <div id="lottie-sticker"></div>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-row">
+                <span class="stat-label">
+                    <span class="material-symbols-rounded">public</span>
+                    Локация
+                </span>
+                <span class="stat-value" id="locationText" style="font-size: 14px;">Оптимальная</span>
             </div>
 
-            <div class="info-panel">
-                <div class="info-row">
-                    <span class="stat-label">🌍 Локация</span>
-                    <span class="stat-value" id="locationText" style="font-size: 14px;">Оптимальная</span>
+            <div class="stats-grid">
+                <div class="stat-box data-hidden" id="boxPing">
+                    <span class="stat-label">
+                        <span class="material-symbols-rounded">bolt</span>
+                        Пинг
+                    </span>
+                    <span class="stat-value"><span id="valPing">--</span> ms</span>
                 </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-box data-hidden" id="boxPing">
-                        <span class="stat-label">⚡ Пинг</span>
-                        <span class="stat-value"><span id="valPing">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">ms</span></span>
-                    </div>
-                    <div class="stat-box data-hidden" id="boxTraffic">
-                        <span class="stat-label">📊 Трафик</span>
-                        <span class="stat-value"><span id="valTraffic">0.00</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">GB</span></span>
-                    </div>
-                    <div class="stat-box data-hidden" id="boxSpeedDown">
-                        <span class="stat-label">⬇️ Загрузка</span>
-                        <span class="stat-value"><span id="valSpeedDown">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">Mb/s</span></span>
-                    </div>
-                    <div class="stat-box data-hidden" id="boxSpeedUp">
-                        <span class="stat-label">⬆️ Отдача</span>
-                        <span class="stat-value"><span id="valSpeedUp">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">Mb/s</span></span>
-                    </div>
+
+                <div class="stat-box data-hidden" id="boxTraffic">
+                    <span class="stat-label">
+                        <span class="material-symbols-rounded">bar_chart</span>
+                        Трафик
+                    </span>
+                    <span class="stat-value"><span id="valTraffic">0.00</span> GB</span>
+                </div>
+
+                <div class="stat-box data-hidden" id="boxSpeedDown">
+                    <span class="stat-label">
+                        <span class="material-symbols-rounded">download</span>
+                        Загрузка
+                    </span>
+                    <span class="stat-value"><span id="valSpeedDown">--</span> Mb/s</span>
+                </div>
+
+                <div class="stat-box data-hidden" id="boxSpeedUp">
+                    <span class="stat-label">
+                        <span class="material-symbols-rounded">upload</span>
+                        Отдача
+                    </span>
+                    <span class="stat-value"><span id="valSpeedUp">--</span> Mb/s</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Оптимизированная инициализация Lottie
-        const animation = lottie.loadAnimation({
-            container: document.getElementById('lottie-sticker'),
-            renderer: 'svg',
-            loop: false, 
-            autoplay: false, 
-            path: 'black_sakura.json',
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice', // Рендерим без искажений
-                progressiveLoad: true // Ускоряет первую загрузку
-            }
-        });
+<script>
+const animation = lottie.loadAnimation({
+    container: document.getElementById('lottie-sticker'),
+    renderer: 'svg',
+    loop: false,
+    autoplay: false,
+    path: 'black_sakura.json'
+});
 
-        const vpnButton = document.getElementById('vpnButton');
-        const statusText = document.getElementById('statusText');
-        const locationText = document.getElementById('locationText');
-        
-        // Элементы статистики
-        const statBoxes = [document.getElementById('boxPing'), document.getElementById('boxTraffic'), document.getElementById('boxSpeedDown'), document.getElementById('boxSpeedUp')];
-        const valPing = document.getElementById('valPing');
-        const valTraffic = document.getElementById('valTraffic');
-        const valSpeedDown = document.getElementById('valSpeedDown');
-        const valSpeedUp = document.getElementById('valSpeedUp');
+const vpnButton = document.getElementById('vpnButton');
+const statusText = document.getElementById('statusText');
+const locationText = document.getElementById('locationText');
 
-        let isConnected = false;
-        let isConnecting = false;
-        let liveStatsInterval;
-        let currentTraffic = 0.00;
+const statBoxes = [
+    document.getElementById('boxPing'),
+    document.getElementById('boxTraffic'),
+    document.getElementById('boxSpeedDown'),
+    document.getElementById('boxSpeedUp')
+];
 
-        // Имитация подключения
-        async function connectToVPN() {
-            return new Promise(resolve => {
-                setTimeout(() => resolve({ status: 'success', location: 'Frankfurt, DE 🇩🇪' }), 1500);
+const valPing = document.getElementById('valPing');
+const valTraffic = document.getElementById('valTraffic');
+const valSpeedDown = document.getElementById('valSpeedDown');
+const valSpeedUp = document.getElementById('valSpeedUp');
+
+let isConnected = false;
+let isConnecting = false;
+let liveStatsInterval;
+let currentTraffic = 0.00;
+
+async function connectToVPN() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve({ status: 'success', location: 'Frankfurt, DE 🇩🇪' }), 1500);
+    });
+}
+
+function startLiveStats() {
+    valPing.innerText = Math.floor(Math.random() * 10) + 35;
+
+    liveStatsInterval = setInterval(() => {
+        let ping = parseInt(valPing.innerText);
+        valPing.innerText = ping + (Math.random() > 0.5 ? 1 : -1);
+
+        valSpeedDown.innerText = (Math.random() * 40 + 80).toFixed(1);
+        valSpeedUp.innerText = (Math.random() * 20 + 40).toFixed(1);
+
+        currentTraffic += Math.random() * 0.05;
+        valTraffic.innerText = currentTraffic.toFixed(2);
+    }, 1000);
+}
+
+function stopLiveStats() {
+    clearInterval(liveStatsInterval);
+    valPing.innerText = "--";
+    valSpeedDown.innerText = "--";
+    valSpeedUp.innerText = "--";
+}
+
+vpnButton.addEventListener('click', async () => {
+    if (isConnecting) return;
+
+    if (!isConnected) {
+        isConnecting = true;
+        statusText.textContent = "Установка соединения...";
+        animation.goToAndPlay(0, true);
+
+        const response = await connectToVPN();
+
+        if(response.status === 'success') {
+            isConnected = true;
+            isConnecting = false;
+
+            vpnButton.classList.add('connected');
+            statusText.textContent = "Защищено";
+            statusText.style.color = "var(--accent-green)";
+            locationText.textContent = response.location;
+
+            statBoxes.forEach(box => {
+                box.classList.remove('data-hidden');
+                box.classList.add('data-visible');
             });
+
+            startLiveStats();
         }
+    } else {
+        isConnected = false;
+        vpnButton.classList.remove('connected');
+        statusText.textContent = "Не подключено";
+        statusText.style.color = "var(--text-secondary)";
+        locationText.textContent = "Оптимальная";
 
-        // Симуляция живых данных (когда ВПН включен)
-        function startLiveStats() {
-            // Разово задаем начальные значения
-            valPing.innerText = Math.floor(Math.random() * 10) + 35; // 35-45ms
-            
-            liveStatsInterval = setInterval(() => {
-                // Имитация прыжков пинга ±2ms
-                let ping = parseInt(valPing.innerText);
-                valPing.innerText = ping + (Math.random() > 0.5 ? 1 : -1);
-
-                // Имитация скорости (динамически меняется каждую секунду)
-                valSpeedDown.innerText = (Math.random() * (120 - 80) + 80).toFixed(1); // 80-120 Mb/s
-                valSpeedUp.innerText = (Math.random() * (60 - 40) + 40).toFixed(1); // 40-60 Mb/s
-
-                // Имитация расхода трафика
-                currentTraffic += Math.random() * 0.05;
-                valTraffic.innerText = currentTraffic.toFixed(2);
-            }, 1000);
-        }
-
-        function stopLiveStats() {
-            clearInterval(liveStatsInterval);
-            valPing.innerText = "--";
-            valSpeedDown.innerText = "--";
-            valSpeedUp.innerText = "--";
-            // Трафик можно не обнулять, чтобы показать сколько потрачено за сессию
-        }
-
-        vpnButton.addEventListener('click', async () => {
-            if (isConnecting) return;
-
-            if (!isConnected) {
-                // Подключение...
-                isConnecting = true;
-                statusText.textContent = "Установка соединения...";
-                statusText.style.color = "#ffffff";
-                
-                animation.goToAndPlay(0, true);
-
-                const response = await connectToVPN();
-
-                // Подключено
-                if(response.status === 'success') {
-                    isConnected = true;
-                    isConnecting = false;
-                    
-                    vpnButton.classList.add('connected');
-                    statusText.textContent = "Защищено";
-                    statusText.style.color = "var(--accent-green)";
-                    locationText.textContent = response.location;
-
-                    // Показываем статистику и запускаем счетчики
-                    statBoxes.forEach(box => {
-                        box.classList.remove('data-hidden');
-                        box.classList.add('data-visible');
-                    });
-                    startLiveStats();
-                }
-            } else {
-                // Отключение
-                isConnected = false;
-                vpnButton.classList.remove('connected');
-                statusText.textContent = "Не подключено";
-                statusText.style.color = "var(--text-secondary)";
-                locationText.textContent = "Оптимальная";
-
-                // Прячем статистику
-                statBoxes.forEach(box => {
-                    box.classList.remove('data-visible');
-                    box.classList.add('data-hidden');
-                });
-                stopLiveStats();
-            }
+        statBoxes.forEach(box => {
+            box.classList.remove('data-visible');
+            box.classList.add('data-hidden');
         });
-    </script>
+
+        stopLiveStats();
+    }
+});
+</script>
+
 </body>
 </html>

@@ -3,10 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Богдан Простаткин | Developer</title>
+    <title>BlackSakura VPN</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --accent-blue: #007aff;
+            --accent-green: #34c759; /* iOS Green */
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --btn-glow: rgba(52, 199, 89, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- Эффект жидкого фона --- */
+        .bg-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(60px); 
+            will-change: transform;
+        }
+
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floating 20s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+
+        .sphere-1 { width: 50vw; height: 50vw; background: #501e9c; top: -10%; left: -10%; }
+        .sphere-2 { width: 40vw; height: 40vw; background: #1e5a9c; bottom: 5%; right: -5%; animation-delay: -5s; }
+        .sphere-3 { width: 30vw; height: 30vw; background: #303030; top: 40%; left: 30%; animation-delay: -10s; }
+
+        @keyframes floating {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.05); }
+        }
+
+        /* --- Основной интерфейс VPN --- */
+        .main-container {
+            width: 90%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        .glass-profile {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px;
+            padding: 50px 30px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 5px;
+        }
+
+        /* Текст статуса подключения */
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            transition: color 0.3s ease;
+        }
+
+        /* --- Кнопка-Стикер --- */
+        .vpn-btn-wrapper {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            margin-bottom: 40px;
+            /* Легкая тень для объема */
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02), 
+                        0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .vpn-btn-wrapper:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .vpn-btn-wrapper:active {
+            transform: scale(0.95);
+        }
+
+        /* Состояние "Подключено" */
+        .vpn-btn-wrapper.connected {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 40px var(--btn-glow), 
+                        inset 0 0 20px var(--btn-glow);
+        }
+
+        /* Контейнер для самого SVG стикера */
+        #lottie-sticker {
+            width: 140px;
+            height: 140px;
+            pointer-events: none; /* Чтобы клик шел по обертке */
+        }
+
+        /* --- Плашки с информацией --- */
+        .server-info {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 16px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-weight: 800;
+        }
+
+        .ip-hidden {
+            filter: blur(4px);
+            transition: filter 0.3s ease;
+        }
+
+        .ip-visible {
+            filter: blur(0);
+        }
+
+    </style>
 </head>
 <body>
 
@@ -17,35 +191,109 @@
     </div>
 
     <div class="main-container">
-        <header class="glass-profile">
-            <div id="lottie-sticker" class="lottie-box"></div>
-            
-            <h1 class="title">Богдан Простаткин</h1>
-            <p class="subtitle">Дмитриевич</p>
-            
-            <div class="status-pill">Fullstack Developer</div>
-            
-            <p class="bio">
-                Специализируюсь на создании современных интерфейсов и автоматизации систем. 
-                Эстетика iOS, мощь Python и чистота кода.
-            </p>
+        <div class="glass-profile">
+            <h1 class="app-title">BlackSakura VPN</h1>
+            <div class="status-text" id="statusText">Не подключено</div>
 
-            <div class="actions">
-                <a href="https://t.me/ТВОЙ_ЛОГИН" target="_blank" class="btn btn-filled">Написать мне</a>
-                <a href="portfolio.html" class="btn btn-outline">Портфолио</a>
+            <div class="vpn-btn-wrapper" id="vpnButton">
+                <div id="lottie-sticker"></div>
             </div>
-        </header>
+
+            <div class="server-info">
+                <div class="info-row">
+                    <span class="info-label">Локация</span>
+                    <span class="info-value" id="locationText">Оптимальная ⚡</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">IP Адрес</span>
+                    <span class="info-value ip-hidden" id="ipAddress">192.168.0.1</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        lottie.loadAnimation({
-            container: document.getElementById('lottie-sticker'), // ID контейнера
-            renderer: 'svg', // Рендерим в SVG для четкости и скорости
-            loop: true,
-            autoplay: true,
-            path: 'black_sakura.json' // Путь к файлу
+        // Инициализация Lottie (стикер по умолчанию остановлен)
+        const animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-sticker'),
+            renderer: 'svg',
+            loop: false, // Не зацикливаем, будем проигрывать по клику
+            autoplay: false, 
+            path: 'black_sakura.json'
+        });
+
+        // Элементы интерфейса
+        const vpnButton = document.getElementById('vpnButton');
+        const statusText = document.getElementById('statusText');
+        const ipAddress = document.getElementById('ipAddress');
+        const locationText = document.getElementById('locationText');
+
+        // Состояние VPN
+        let isConnected = false;
+        let isConnecting = false;
+
+        // --- ТОЧКА ВХОДА ДЛЯ ТВОЕГО БЭКЕНДА ---
+        // Эта функция имитирует запрос к серверу. 
+        // В будущем замени её содержимое на fetch/axios запрос к твоему API (например, генерация ключей WireGuard)
+        async function connectToRealVPNServer() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ 
+                        status: 'success', 
+                        newIp: '185.15.34.201',
+                        location: 'Frankfurt, DE 🇩🇪'
+                    });
+                }, 2000); // Имитация задержки сети 2 секунды
+            });
+        }
+
+        // Логика нажатия на кнопку
+        vpnButton.addEventListener('click', async () => {
+            if (isConnecting) return; // Блокируем кнопку во время загрузки
+
+            if (!isConnected) {
+                // 1. Процесс подключения
+                isConnecting = true;
+                statusText.textContent = "Подключение...";
+                statusText.style.color = "#ffffff"; // Белый цвет во время процесса
+                
+                // Запускаем анимацию стикера
+                animation.goToAndPlay(0, true);
+
+                // Ожидаем ответ от сервера (пока что имитация)
+                const response = await connectToRealVPNServer();
+
+                // 2. Успешное подключение
+                if(response.status === 'success') {
+                    isConnected = true;
+                    isConnecting = false;
+                    
+                    // Обновляем UI
+                    vpnButton.classList.add('connected');
+                    statusText.textContent = "Подключено";
+                    statusText.style.color = "var(--accent-green)"; // Зеленый цвет iOS
+                    
+                    ipAddress.textContent = response.newIp;
+                    ipAddress.classList.remove('ip-hidden');
+                    ipAddress.classList.add('ip-visible');
+                    
+                    locationText.textContent = response.location;
+                }
+            } else {
+                // 3. Отключение
+                isConnected = false;
+                vpnButton.classList.remove('connected');
+                statusText.textContent = "Не подключено";
+                statusText.style.color = "var(--text-secondary)"; // Возвращаем тусклый цвет
+                
+                ipAddress.classList.remove('ip-visible');
+                ipAddress.classList.add('ip-hidden');
+                locationText.textContent = "Оптимальная ⚡";
+
+                // При желании можно проиграть анимацию еще раз при отключении
+                // animation.goToAndPlay(0, true);
+            }
         });
     </script>
-
 </body>
 </html>

@@ -11,11 +11,10 @@
             --bg-dark: #050505;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.5);
-            --accent-blue: #007aff;
-            --accent-green: #34c759; /* iOS Green */
+            --accent-green: #34c759;
             --glass-bg: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --btn-glow: rgba(52, 199, 89, 0.2);
+            --btn-glow: rgba(52, 199, 89, 0.25);
         }
 
         * {
@@ -23,6 +22,8 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
+            /* Убираем синюю подсветку при тапе на мобильных везде */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -35,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* --- Эффект жидкого фона --- */
+        /* --- Оптимизированный фон (GPU ускорение) --- */
         .bg-wrapper {
             position: fixed;
             top: 0;
@@ -44,6 +45,7 @@
             height: 100%;
             z-index: -1;
             filter: blur(60px); 
+            transform: translateZ(0); /* Форсируем GPU */
             will-change: transform;
         }
 
@@ -51,7 +53,7 @@
             position: absolute;
             border-radius: 50%;
             opacity: 0.3;
-            animation: floating 20s infinite alternate ease-in-out;
+            animation: floating 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform;
         }
 
@@ -60,14 +62,14 @@
         .sphere-3 { width: 30vw; height: 30vw; background: #303030; top: 40%; left: 30%; animation-delay: -10s; }
 
         @keyframes floating {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 50px) scale(1.05); }
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(30px, 50px, 0) scale(1.05); }
         }
 
-        /* --- Основной интерфейс VPN --- */
+        /* --- Интерфейс --- */
         .main-container {
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             z-index: 10;
         }
 
@@ -77,12 +79,13 @@
             -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--glass-border);
             border-radius: 40px;
-            padding: 50px 30px;
+            padding: 40px 25px;
             text-align: center;
             box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
+            transform: translateZ(0); /* Фикс артефактов размытия в Safari */
         }
 
         .app-title {
@@ -92,19 +95,19 @@
             margin-bottom: 5px;
         }
 
-        /* Текст статуса подключения */
         .status-text {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 40px;
-            transition: color 0.3s ease;
+            margin-bottom: 30px;
+            transition: color 0.4s ease;
+            will-change: color;
         }
 
-        /* --- Кнопка-Стикер --- */
+        /* --- Плавная Кнопка-Стикер --- */
         .vpn-btn-wrapper {
-            width: 180px;
-            height: 180px;
+            width: 170px;
+            height: 170px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.02);
             border: 2px solid var(--glass-border);
@@ -112,44 +115,47 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Плавная кривая анимации в стиле Apple */
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             position: relative;
-            margin-bottom: 40px;
-            /* Легкая тень для объема */
+            margin-bottom: 35px;
             box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02), 
                         0 15px 30px rgba(0, 0, 0, 0.3);
-            -webkit-tap-highlight-color: transparent; 
+            transform: translateZ(0);
+            outline: none;
         }
 
         .vpn-btn-wrapper:hover {
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .vpn-btn-wrapper:focus {
-    outline: none;
+            transform: scale(1.03) translateZ(0);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .vpn-btn-wrapper:active {
-            transform: scale(0.95);
+            transform: scale(0.95) translateZ(0);
+            transition: all 0.2s ease; /* Быстрое сжатие при тапе */
         }
 
-        /* Состояние "Подключено" */
         .vpn-btn-wrapper.connected {
             border-color: var(--accent-green);
-            box-shadow: 0 0 40px var(--btn-glow), 
-                        inset 0 0 20px var(--btn-glow);
+            box-shadow: 0 0 45px var(--btn-glow), 
+                        inset 0 0 25px var(--btn-glow);
+            animation: pulse-glow 3s infinite alternate ease-in-out;
         }
 
-        /* Контейнер для самого SVG стикера */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 30px var(--btn-glow), inset 0 0 15px var(--btn-glow); }
+            100% { box-shadow: 0 0 50px var(--btn-glow), inset 0 0 30px var(--btn-glow); }
+        }
+
         #lottie-sticker {
-            width: 140px;
-            height: 140px;
-            pointer-events: none; /* Чтобы клик шел по обертке */
+            width: 130px;
+            height: 130px;
+            pointer-events: none;
+            transform: translate3d(0,0,0); /* Аппаратное ускорение стикера */
         }
 
-        /* --- Плашки с информацией --- */
-        .server-info {
+        /* --- Расширенная статистика --- */
+        .info-panel {
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -165,23 +171,49 @@
             padding: 16px 20px;
             border-radius: 20px;
             font-size: 14px;
+            transition: background 0.3s ease;
         }
 
-        .info-label {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: opacity 0.4s ease, filter 0.4s ease;
+        }
+
+        .stat-label {
+            font-size: 12px;
             color: var(--text-secondary);
-            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .info-value {
+        .stat-value {
+            font-size: 18px;
             font-weight: 800;
+            font-variant-numeric: tabular-nums; /* Цифры не будут "прыгать" при изменении ширины */
         }
 
-        .ip-hidden {
-            filter: blur(4px);
-            transition: filter 0.3s ease;
+        /* Состояния сокрытия данных */
+        .data-hidden {
+            opacity: 0.4;
+            filter: blur(3px);
         }
-
-        .ip-visible {
+        .data-visible {
+            opacity: 1;
             filter: blur(0);
         }
 
@@ -204,99 +236,143 @@
                 <div id="lottie-sticker"></div>
             </div>
 
-            <div class="server-info">
+            <div class="info-panel">
                 <div class="info-row">
-                    <span class="info-label">Локация</span>
-                    <span class="info-value" id="locationText">Оптимальная ⚡</span>
+                    <span class="stat-label">🌍 Локация</span>
+                    <span class="stat-value" id="locationText" style="font-size: 14px;">Оптимальная</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">IP Адрес</span>
-                    <span class="info-value ip-hidden" id="ipAddress">192.168.0.1</span>
+                
+                <div class="stats-grid">
+                    <div class="stat-box data-hidden" id="boxPing">
+                        <span class="stat-label">⚡ Пинг</span>
+                        <span class="stat-value"><span id="valPing">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">ms</span></span>
+                    </div>
+                    <div class="stat-box data-hidden" id="boxTraffic">
+                        <span class="stat-label">📊 Трафик</span>
+                        <span class="stat-value"><span id="valTraffic">0.00</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">GB</span></span>
+                    </div>
+                    <div class="stat-box data-hidden" id="boxSpeedDown">
+                        <span class="stat-label">⬇️ Загрузка</span>
+                        <span class="stat-value"><span id="valSpeedDown">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">Mb/s</span></span>
+                    </div>
+                    <div class="stat-box data-hidden" id="boxSpeedUp">
+                        <span class="stat-label">⬆️ Отдача</span>
+                        <span class="stat-value"><span id="valSpeedUp">--</span> <span style="font-size:12px; font-weight:400; color:var(--text-secondary)">Mb/s</span></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Инициализация Lottie (стикер по умолчанию остановлен)
+        // Оптимизированная инициализация Lottie
         const animation = lottie.loadAnimation({
             container: document.getElementById('lottie-sticker'),
             renderer: 'svg',
-            loop: false, // Не зацикливаем, будем проигрывать по клику
+            loop: false, 
             autoplay: false, 
-            path: 'black_sakura.json'
+            path: 'black_sakura.json',
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice', // Рендерим без искажений
+                progressiveLoad: true // Ускоряет первую загрузку
+            }
         });
 
-        // Элементы интерфейса
         const vpnButton = document.getElementById('vpnButton');
         const statusText = document.getElementById('statusText');
-        const ipAddress = document.getElementById('ipAddress');
         const locationText = document.getElementById('locationText');
+        
+        // Элементы статистики
+        const statBoxes = [document.getElementById('boxPing'), document.getElementById('boxTraffic'), document.getElementById('boxSpeedDown'), document.getElementById('boxSpeedUp')];
+        const valPing = document.getElementById('valPing');
+        const valTraffic = document.getElementById('valTraffic');
+        const valSpeedDown = document.getElementById('valSpeedDown');
+        const valSpeedUp = document.getElementById('valSpeedUp');
 
-        // Состояние VPN
         let isConnected = false;
         let isConnecting = false;
+        let liveStatsInterval;
+        let currentTraffic = 0.00;
 
-        // --- ТОЧКА ВХОДА ДЛЯ ТВОЕГО БЭКЕНДА ---
-        // Эта функция имитирует запрос к серверу. 
-        // В будущем замени её содержимое на fetch/axios запрос к твоему API (например, генерация ключей WireGuard)
-        async function connectToRealVPNServer() {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve({ 
-                        status: 'success', 
-                        newIp: '185.15.34.201',
-                        location: 'Frankfurt, DE 🇩🇪'
-                    });
-                }, 2000); // Имитация задержки сети 2 секунды
+        // Имитация подключения
+        async function connectToVPN() {
+            return new Promise(resolve => {
+                setTimeout(() => resolve({ status: 'success', location: 'Frankfurt, DE 🇩🇪' }), 1500);
             });
         }
 
-        // Логика нажатия на кнопку
+        // Симуляция живых данных (когда ВПН включен)
+        function startLiveStats() {
+            // Разово задаем начальные значения
+            valPing.innerText = Math.floor(Math.random() * 10) + 35; // 35-45ms
+            
+            liveStatsInterval = setInterval(() => {
+                // Имитация прыжков пинга ±2ms
+                let ping = parseInt(valPing.innerText);
+                valPing.innerText = ping + (Math.random() > 0.5 ? 1 : -1);
+
+                // Имитация скорости (динамически меняется каждую секунду)
+                valSpeedDown.innerText = (Math.random() * (120 - 80) + 80).toFixed(1); // 80-120 Mb/s
+                valSpeedUp.innerText = (Math.random() * (60 - 40) + 40).toFixed(1); // 40-60 Mb/s
+
+                // Имитация расхода трафика
+                currentTraffic += Math.random() * 0.05;
+                valTraffic.innerText = currentTraffic.toFixed(2);
+            }, 1000);
+        }
+
+        function stopLiveStats() {
+            clearInterval(liveStatsInterval);
+            valPing.innerText = "--";
+            valSpeedDown.innerText = "--";
+            valSpeedUp.innerText = "--";
+            // Трафик можно не обнулять, чтобы показать сколько потрачено за сессию
+        }
+
         vpnButton.addEventListener('click', async () => {
-            if (isConnecting) return; // Блокируем кнопку во время загрузки
+            if (isConnecting) return;
 
             if (!isConnected) {
-                // 1. Процесс подключения
+                // Подключение...
                 isConnecting = true;
-                statusText.textContent = "Подключение...";
-                statusText.style.color = "#ffffff"; // Белый цвет во время процесса
+                statusText.textContent = "Установка соединения...";
+                statusText.style.color = "#ffffff";
                 
-                // Запускаем анимацию стикера
                 animation.goToAndPlay(0, true);
 
-                // Ожидаем ответ от сервера (пока что имитация)
-                const response = await connectToRealVPNServer();
+                const response = await connectToVPN();
 
-                // 2. Успешное подключение
+                // Подключено
                 if(response.status === 'success') {
                     isConnected = true;
                     isConnecting = false;
                     
-                    // Обновляем UI
                     vpnButton.classList.add('connected');
-                    statusText.textContent = "Подключено";
-                    statusText.style.color = "var(--accent-green)"; // Зеленый цвет iOS
-                    
-                    ipAddress.textContent = response.newIp;
-                    ipAddress.classList.remove('ip-hidden');
-                    ipAddress.classList.add('ip-visible');
-                    
+                    statusText.textContent = "Защищено";
+                    statusText.style.color = "var(--accent-green)";
                     locationText.textContent = response.location;
+
+                    // Показываем статистику и запускаем счетчики
+                    statBoxes.forEach(box => {
+                        box.classList.remove('data-hidden');
+                        box.classList.add('data-visible');
+                    });
+                    startLiveStats();
                 }
             } else {
-                // 3. Отключение
+                // Отключение
                 isConnected = false;
                 vpnButton.classList.remove('connected');
                 statusText.textContent = "Не подключено";
-                statusText.style.color = "var(--text-secondary)"; // Возвращаем тусклый цвет
-                
-                ipAddress.classList.remove('ip-visible');
-                ipAddress.classList.add('ip-hidden');
-                locationText.textContent = "Оптимальная ⚡";
+                statusText.style.color = "var(--text-secondary)";
+                locationText.textContent = "Оптимальная";
 
-                // При желании можно проиграть анимацию еще раз при отключении
-                // animation.goToAndPlay(0, true);
+                // Прячем статистику
+                statBoxes.forEach(box => {
+                    box.classList.remove('data-visible');
+                    box.classList.add('data-hidden');
+                });
+                stopLiveStats();
             }
         });
     </script>

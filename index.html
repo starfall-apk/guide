@@ -14,20 +14,16 @@
             --bg-dark: #050505;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.5);
-            --accent-gold: #ffcc00;
             --glass-bg: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.08);
             --btn-glow: rgba(255, 255, 255, 0.12);
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            touch-action: pan-y;
+            user-select: none; touch-action: pan-y;
         }
 
         body {
@@ -37,16 +33,19 @@
             display: flex;
             justify-content: center;
             overflow-x: hidden;
-            background-attachment: fixed;
+            /* Улучшаем плавность скролла на iOS */
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* --- ДИНАМИЧНЫЙ ФОН --- */
+        /* --- GPU ОПТИМИЗИРОВАННЫЙ ФОН --- */
         .bg-wrapper {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             filter: blur(100px);
+            /* Принудительный вынос на GPU */
             transform: translateZ(0);
+            will-change: transform;
         }
 
         .glow-sphere {
@@ -54,16 +53,16 @@
             border-radius: 50%;
             opacity: 0.25;
             animation: floating 15s infinite alternate ease-in-out;
+            will-change: transform;
         }
         .sphere-1 { width: 70vw; height: 70vw; background: #6a11cb; top: -15%; left: -10%; }
         .sphere-2 { width: 60vw; height: 60vw; background: #2575fc; bottom: -10%; right: -10%; animation-delay: -5s; }
 
         @keyframes floating {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(40px, 60px); }
+            0% { transform: translate3d(0, 0, 0) scale(1); }
+            100% { transform: translate3d(40px, 60px, 0) scale(1.05); }
         }
 
-        /* --- КОНТЕЙНЕР --- */
         .main-container {
             width: 92%;
             max-width: 420px;
@@ -71,55 +70,38 @@
             z-index: 10;
         }
 
+        /* --- КАРТОЧКИ --- */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
             padding: 24px;
             margin-bottom: 20px;
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+            /* Плавность трансформаций */
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform;
+            transform: translateZ(0);
         }
 
-        .glass-card:active {
-            transform: scale(0.98);
-        }
+        .glass-card:active { transform: scale(0.97) translateZ(0); }
 
-        /* --- ШАПКА --- */
-        .profile-header {
-            text-align: center;
-        }
+        .profile-header { text-align: center; }
 
         #lottie-helmet {
-            width: 120px;
-            height: 120px;
+            width: 120px; height: 120px;
             margin: -20px auto 10px;
+            will-change: transform;
         }
 
-        .nick {
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 4px;
-        }
+        .nick { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
 
-        /* --- ЗАГОЛОВКИ С САКУРОЙ --- */
-        .title-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .sakura-mini {
-            width: 32px;
-            height: 32px;
-        }
+        .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .sakura-mini { width: 32px; height: 32px; will-change: transform; }
 
         h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
 
-        /* --- ИНТЕРАКТИВНЫЕ КНОПКИ --- */
         .action-item {
             display: flex;
             align-items: center;
@@ -131,14 +113,12 @@
             text-decoration: none;
             color: inherit;
             margin-bottom: 12px;
-            transition: 0.3s all;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .action-item:hover {
             background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 25px var(--btn-glow);
         }
 
@@ -148,25 +128,22 @@
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 22px;
-            color: var(--text-primary);
         }
 
-        .action-item span { font-size: 15px; font-weight: 600; }
-
-        /* --- БЛОК КОШКИ --- */
+        /* --- КАТ-СЕКЦИЯ --- */
         .cat-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             text-align: center;
-            cursor: pointer;
+            overflow: hidden;
         }
 
         #lottie-cat {
-            width: 160px;
-            height: 160px;
-            margin: -30px auto -10px;
+            width: 160px; height: 160px;
+            margin: -20px auto -10px;
+            will-change: transform;
         }
 
-        /* --- ПОДАРКИ --- */
+        /* --- ГИФТ --- */
         .gift-btn {
             background: #ffffff;
             color: #000;
@@ -176,17 +153,13 @@
             flex-direction: column;
             align-items: center;
             font-weight: 800;
-            font-size: 18px;
             text-decoration: none;
             box-shadow: 0 20px 50px rgba(255, 255, 255, 0.15);
-            transition: 0.3s;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
-        #lottie-gift {
-            width: 90px;
-            height: 90px;
-            margin-top: -15px;
-        }
+        #lottie-gift { width: 90px; height: 90px; margin-top: -15px; }
 
         .footer {
             text-align: center;
@@ -195,6 +168,14 @@
             margin-top: 40px;
             letter-spacing: 2px;
             text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        /* Анимация перехода (Fade Out) */
+        .page-exit {
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
@@ -205,12 +186,12 @@
     <div class="glow-sphere sphere-2"></div>
 </div>
 
-<div class="main-container">
+<div class="main-container" id="content">
     
     <div class="glass-card profile-header">
         <div id="lottie-helmet"></div>
         <h1 class="nick">starfall-apk</h1>
-        <p style="font-size: 13px; color: var(--text-secondary); opacity: 0.8;">Software Architect & Creator</p>
+        <p style="font-size: 13px; color: var(--text-secondary);">Software Architect & Creator</p>
     </div>
 
     <div class="glass-card">
@@ -241,12 +222,12 @@
         </a>
     </div>
 
-    <div class="glass-card cat-card">
+    <div class="glass-card cat-card" id="cat-trigger">
         <div id="lottie-cat"></div>
         <h2 style="margin-bottom: 10px;">Моя Кошка</h2>
-        <a href="#" class="action-item" style="justify-content: center; background: rgba(255,255,255,0.05);">
+        <div class="action-item" style="justify-content: center; background: rgba(255,255,255,0.05); margin-bottom: 0;">
             <span>Смотреть фотографии</span>
-        </a>
+        </div>
     </div>
 
     <a href="https://t.me/wf9ll" class="gift-btn">
@@ -258,37 +239,37 @@
 </div>
 
 <script>
-    // Загрузка шлема
-    lottie.loadAnimation({
-        container: document.getElementById('lottie-helmet'),
-        renderer: 'svg', loop: true, autoplay: true,
-        path: 'gold_helmet.json'
+    // Оптимизированная загрузка Lottie
+    const loadAnim = (id, path) => lottie.loadAnimation({
+        container: document.getElementById(id),
+        renderer: 'svg', loop: true, autoplay: true, path: path,
+        rendererSettings: { 
+            progressiveLoad: true,
+            hideOnTransparent: true
+        }
     });
 
-    // Загрузка сакуры
-    document.querySelectorAll('.lottie-sakura').forEach(el => {
-        lottie.loadAnimation({
-            container: el,
-            renderer: 'svg', loop: true, autoplay: true,
-            path: 'black_sakura.json'
-        });
+    loadAnim('lottie-helmet', 'gold_helmet.json');
+    loadAnim('lottie-cat', 'cat.json');
+    loadAnim('lottie-gift', 'gift.json');
+
+    document.querySelectorAll('.lottie-sakura').forEach((el, index) => {
+        el.id = 'sakura-' + index;
+        loadAnim(el.id, 'black_sakura.json');
     });
 
-    // Загрузка кошки
-    lottie.loadAnimation({
-        container: document.getElementById('lottie-cat'),
-        renderer: 'svg', loop: true, autoplay: true,
-        path: 'cat.json'
+    // Плавный переход на страницу кошки
+    const catTrigger = document.getElementById('cat-trigger');
+    const content = document.getElementById('content');
+
+    catTrigger.addEventListener('click', () => {
+        content.classList.add('page-exit');
+        setTimeout(() => {
+            window.location.href = 'cat-gallery.html'; // Твоя будущая страница
+        }, 400);
     });
 
-    // Загрузка подарка
-    lottie.loadAnimation({
-        container: document.getElementById('lottie-gift'),
-        renderer: 'svg', loop: true, autoplay: true,
-        path: 'gift.json'
-    });
-
-    // Блокировка зума и двойного клика
+    // Блокировка зума
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length > 1) e.preventDefault();
     }, { passive: false });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>starfall | Ecosystem</title>
+    <title>starfall | Optimized</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
@@ -33,7 +33,6 @@
             display: flex;
             justify-content: center;
             overflow-x: hidden;
-            /* Улучшаем плавность скролла на iOS */
             -webkit-overflow-scrolling: touch;
         }
 
@@ -43,7 +42,6 @@
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
             filter: blur(100px);
-            /* Принудительный вынос на GPU */
             transform: translateZ(0);
             will-change: transform;
         }
@@ -70,7 +68,6 @@
             z-index: 10;
         }
 
-        /* --- КАРТОЧКИ --- */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(35px);
@@ -79,10 +76,9 @@
             border-radius: 30px;
             padding: 24px;
             margin-bottom: 20px;
-            /* Плавность трансформаций */
             transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-            will-change: transform;
             transform: translateZ(0);
+            will-change: transform;
         }
 
         .glass-card:active { transform: scale(0.97) translateZ(0); }
@@ -92,13 +88,12 @@
         #lottie-helmet {
             width: 120px; height: 120px;
             margin: -20px auto 10px;
-            will-change: transform;
         }
 
         .nick { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
 
         .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .sakura-mini { width: 32px; height: 32px; will-change: transform; }
+        .sakura-mini { width: 32px; height: 32px; }
 
         h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
 
@@ -130,20 +125,16 @@
             font-size: 22px;
         }
 
-        /* --- КАТ-СЕКЦИЯ --- */
         .cat-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
             text-align: center;
-            overflow: hidden;
         }
 
         #lottie-cat {
             width: 160px; height: 160px;
             margin: -20px auto -10px;
-            will-change: transform;
         }
 
-        /* --- ГИФТ --- */
         .gift-btn {
             background: #ffffff;
             color: #000;
@@ -170,13 +161,6 @@
             text-transform: uppercase;
             opacity: 0.6;
         }
-
-        /* Анимация перехода (Fade Out) */
-        .page-exit {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
     </style>
 </head>
 <body>
@@ -196,7 +180,7 @@
 
     <div class="glass-card">
         <div class="title-row">
-            <div class="sakura-mini lottie-sakura"></div>
+            <div class="sakura-mini lottie-sakura" data-path="black_sakura.json"></div>
             <h2>Связь</h2>
         </div>
         <a href="https://t.me/join_CBO" class="action-item">
@@ -207,22 +191,20 @@
 
     <div class="glass-card">
         <div class="title-row">
-            <div class="sakura-mini lottie-sakura"></div>
+            <div class="sakura-mini lottie-sakura" data-path="black_sakura.json"></div>
             <h2>Проекты</h2>
         </div>
-        
         <a href="#" class="action-item">
             <div class="icon-box"><span class="material-symbols-rounded">smart_toy</span></div>
             <span>Смешные боты</span>
         </a>
-
         <a href="#" class="action-item">
             <div class="icon-box"><span class="material-symbols-rounded">architecture</span></div>
             <span>Polarity Toolkit</span>
         </a>
     </div>
 
-    <div class="glass-card cat-card" id="cat-trigger">
+    <div class="glass-card cat-card" onclick="window.location.href='cat-gallery.html'">
         <div id="lottie-cat"></div>
         <h2 style="margin-bottom: 10px;">Моя Кошка</h2>
         <div class="action-item" style="justify-content: center; background: rgba(255,255,255,0.05); margin-bottom: 0;">
@@ -239,35 +221,59 @@
 </div>
 
 <script>
-    // Оптимизированная загрузка Lottie
-    const loadAnim = (id, path) => lottie.loadAnimation({
-        container: document.getElementById(id),
-        renderer: 'svg', loop: true, autoplay: true, path: path,
-        rendererSettings: { 
-            progressiveLoad: true,
-            hideOnTransparent: true
-        }
-    });
+    // Массив для хранения всех инстансов анимаций
+    const animations = [];
 
-    loadAnim('lottie-helmet', 'gold_helmet.json');
-    loadAnim('lottie-cat', 'cat.json');
-    loadAnim('lottie-gift', 'gift.json');
+    // Настройка Observer: останавливает анимацию, если её не видно
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const anim = animations.find(a => a.wrapper === entry.target);
+            if (anim) {
+                entry.isIntersecting ? anim.play() : anim.pause();
+            }
+        });
+    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.lottie-sakura').forEach((el, index) => {
-        el.id = 'sakura-' + index;
-        loadAnim(el.id, 'black_sakura.json');
-    });
-
-    // Плавный переход на страницу кошки
-    const catTrigger = document.getElementById('cat-trigger');
-    const content = document.getElementById('content');
-
-    catTrigger.addEventListener('click', () => {
-        content.classList.add('page-exit');
+    // Функция создания анимации с задержкой
+    function initAnim(id, path, delay = 0) {
         setTimeout(() => {
-            window.location.href = 'cat-gallery.html'; // Твоя будущая страница
-        }, 400);
+            const container = typeof id === 'string' ? document.getElementById(id) : id;
+            if (!container) return;
+
+            const anim = lottie.loadAnimation({
+                container: container,
+                renderer: 'svg',
+                loop: true,
+                autoplay: false, // Начинаем на паузе, Observer включит
+                path: path,
+                rendererSettings: {
+                    preserveAspectRatio: 'xMidYMid slice',
+                    hideOnTransparent: true,
+                    progressiveLoad: true
+                }
+            });
+
+            // Сохраняем обертку для поиска в Observer
+            anim.wrapper = container;
+            animations.push(anim);
+            observer.observe(container);
+        }, delay);
+    }
+
+    // Запуск анимаций с шахматной задержкой (по 150мс между группами)
+    // 1. Шлем (сразу)
+    initAnim('lottie-helmet', 'gold_helmet.json', 0);
+    
+    // 2. Сакуры (через 150мс)
+    document.querySelectorAll('.lottie-sakura').forEach((el, i) => {
+        initAnim(el, el.getAttribute('data-path'), 150);
     });
+
+    // 3. Кошка (через 300мс)
+    initAnim('lottie-cat', 'cat.json', 300);
+
+    // 4. Подарок (через 450мс)
+    initAnim('lottie-gift', 'gift.json', 450);
 
     // Блокировка зума
     document.addEventListener('touchstart', (e) => {

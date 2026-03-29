@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>starf9ll | Guide</title>
+    <title>starfall | Ecosystem</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
@@ -14,10 +14,10 @@
             --bg-dark: #050505;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.5);
-            --accent-pink: #ff7eb3;
+            --accent-gold: #ffcc00;
             --glass-bg: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --btn-glow: rgba(255, 255, 255, 0.1);
+            --btn-glow: rgba(255, 255, 255, 0.12);
         }
 
         * {
@@ -37,133 +37,164 @@
             display: flex;
             justify-content: center;
             overflow-x: hidden;
+            background-attachment: fixed;
         }
 
-        /* --- ФОН --- */
+        /* --- ДИНАМИЧНЫЙ ФОН --- */
         .bg-wrapper {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            filter: blur(80px);
+            filter: blur(100px);
             transform: translateZ(0);
         }
 
         .glow-sphere {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.2;
-            animation: floating 20s infinite alternate ease-in-out;
+            opacity: 0.25;
+            animation: floating 15s infinite alternate ease-in-out;
         }
-        .sphere-1 { width: 60vw; height: 60vw; background: #501e9c; top: -10%; left: -10%; }
-        .sphere-2 { width: 50vw; height: 50vw; background: #1e5a9c; bottom: -5%; right: -5%; }
+        .sphere-1 { width: 70vw; height: 70vw; background: #6a11cb; top: -15%; left: -10%; }
+        .sphere-2 { width: 60vw; height: 60vw; background: #2575fc; bottom: -10%; right: -10%; animation-delay: -5s; }
 
         @keyframes floating {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(30px, 40px); }
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(40px, 60px); }
         }
 
         /* --- КОНТЕЙНЕР --- */
         .main-container {
-            width: 90%;
+            width: 92%;
             max-width: 420px;
-            padding: 30px 0;
+            padding: 40px 0;
             z-index: 10;
         }
 
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             border: 1px solid var(--glass-border);
-            border-radius: 28px;
+            border-radius: 30px;
             padding: 24px;
-            margin-bottom: 16px;
-            position: relative;
+            margin-bottom: 20px;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
         }
 
-        /* --- САКУРА НА УРОВНЕ ТЕКСТА --- */
-        .title-wrapper {
+        .glass-card:active {
+            transform: scale(0.98);
+        }
+
+        /* --- ШАПКА --- */
+        .profile-header {
+            text-align: center;
+        }
+
+        #lottie-helmet {
+            width: 120px;
+            height: 120px;
+            margin: -20px auto 10px;
+        }
+
+        .nick {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+        }
+
+        /* --- ЗАГОЛОВКИ С САКУРОЙ --- */
+        .title-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .sakura-inline {
-            width: 28px;
-            height: 28px;
-            display: inline-block;
+        .sakura-mini {
+            width: 32px;
+            height: 32px;
         }
 
-        h2 { font-size: 17px; font-weight: 700; }
+        h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
 
-        /* --- ССЫЛКИ И ПРОЕКТЫ --- */
-        .nav-item {
+        /* --- ИНТЕРАКТИВНЫЕ КНОПКИ --- */
+        .action-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.03);
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--glass-border);
-            padding: 14px 18px;
-            border-radius: 18px;
+            padding: 18px;
+            border-radius: 20px;
             text-decoration: none;
             color: inherit;
-            margin-bottom: 10px;
-            transition: 0.3s;
+            margin-bottom: 12px;
+            transition: 0.3s all;
+            position: relative;
+            overflow: hidden;
         }
 
-        .nav-item:hover { background: rgba(255,255,255,0.07); }
-        .nav-item span { font-size: 14px; font-weight: 600; }
-        
+        .action-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px var(--btn-glow);
+        }
+
         .icon-box {
-            width: 38px; height: 38px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
+            width: 45px; height: 45px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            color: var(--text-primary);
         }
 
-        /* --- КНОПКА ПОДАРКА --- */
-        .gift-link {
-            text-decoration: none;
-            display: block;
-            margin-top: 25px;
+        .action-item span { font-size: 15px; font-weight: 600; }
+
+        /* --- БЛОК КОШКИ --- */
+        .cat-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            text-align: center;
+            cursor: pointer;
         }
 
+        #lottie-cat {
+            width: 160px;
+            height: 160px;
+            margin: -30px auto -10px;
+        }
+
+        /* --- ПОДАРКИ --- */
         .gift-btn {
             background: #ffffff;
             color: #000;
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 26px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
             font-weight: 800;
             font-size: 18px;
-            box-shadow: 0 20px 40px rgba(255,255,255,0.1);
+            text-decoration: none;
+            box-shadow: 0 20px 50px rgba(255, 255, 255, 0.15);
             transition: 0.3s;
         }
 
         #lottie-gift {
-            width: 80px; /* Увеличен */
-            height: 80px;
-            margin-top: -10px;
+            width: 90px;
+            height: 90px;
+            margin-top: -15px;
         }
 
-        .gift-btn span {
-            letter-spacing: -0.5px;
-        }
-
-        /* --- ПРОФИЛЬ --- */
-        .profile-header { text-align: center; padding: 10px 0; }
-        .avatar {
-            width: 70px; height: 70px;
-            background: linear-gradient(135deg, #303030, #101010);
-            border-radius: 22px;
-            margin: 0 auto 15px;
-            border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 28px;
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -176,76 +207,88 @@
 
 <div class="main-container">
     
-    <div class="glass-card">
-        <div class="profile-header">
-            <div class="avatar"></div>
-            <div class="title-wrapper" style="justify-content: center;">
-                <h1 style="font-size: 20px; font-weight: 800;">starfall-apk</h1>
-                <div class="sakura-inline lottie-sakura"></div>
-            </div>
-            <p style="font-size: 13px; color: var(--text-secondary);">Independent Developer & Designer</p>
-        </div>
+    <div class="glass-card profile-header">
+        <div id="lottie-helmet"></div>
+        <h1 class="nick">starfall-apk</h1>
+        <p style="font-size: 13px; color: var(--text-secondary); opacity: 0.8;">Software Architect & Creator</p>
     </div>
 
     <div class="glass-card">
-        <div class="title-wrapper">
-            <div class="sakura-inline lottie-sakura"></div>
-            <h2>Мой канал</h2>
+        <div class="title-row">
+            <div class="sakura-mini lottie-sakura"></div>
+            <h2>Связь</h2>
         </div>
-        <a href="https://t.me/your_channel" class="nav-item">
-            <div class="icon-box"><span class="material-symbols-rounded">campaign</span></div>
-            <span>Adapter</span>
+        <a href="https://t.me/join_CBO" class="action-item">
+            <div class="icon-box"><span class="material-symbols-rounded">rocket_launch</span></div>
+            <span>Adapter: Основной канал</span>
         </a>
     </div>
 
     <div class="glass-card">
-        <div class="title-wrapper">
-            <div class="sakura-inline lottie-sakura"></div>
+        <div class="title-row">
+            <div class="sakura-mini lottie-sakura"></div>
             <h2>Проекты</h2>
         </div>
         
-        <a href="#" class="nav-item">
-            <div class="icon-box"><span class="material-symbols-rounded">vpn_lock</span></div>
+        <a href="#" class="action-item">
+            <div class="icon-box"><span class="material-symbols-rounded">smart_toy</span></div>
             <span>Смешные боты</span>
         </a>
 
-        <a href="#" class="nav-item">
-            <div class="icon-box"><span class="material-symbols-rounded">auto_awesome</span></div>
+        <a href="#" class="action-item">
+            <div class="icon-box"><span class="material-symbols-rounded">architecture</span></div>
             <span>Polarity Toolkit</span>
         </a>
     </div>
 
-    <a href="https://t.me/wf9ll" class="gift-link">
-        <div class="gift-btn">
-            <div id="lottie-gift"></div>
-            <span>ПОДДЕРЖАТЬ ПРОЕКТ</span>
-        </div>
+    <div class="glass-card cat-card">
+        <div id="lottie-cat"></div>
+        <h2 style="margin-bottom: 10px;">Моя Кошка</h2>
+        <a href="#" class="action-item" style="justify-content: center; background: rgba(255,255,255,0.05);">
+            <span>Смотреть фотографии</span>
+        </a>
+    </div>
+
+    <a href="https://t.me/wf9ll" class="gift-btn">
+        <div id="lottie-gift"></div>
+        <span>ПОДДЕРЖАТЬ АВТОРА</span>
     </a>
 
+    <div class="footer">Ecosystem by starfall</div>
 </div>
 
 <script>
-    // Оптимизированная инициализация Сакуры (маленькие, в ряд с текстом)
+    // Загрузка шлема
+    lottie.loadAnimation({
+        container: document.getElementById('lottie-helmet'),
+        renderer: 'svg', loop: true, autoplay: true,
+        path: 'gold_helmet.json'
+    });
+
+    // Загрузка сакуры
     document.querySelectorAll('.lottie-sakura').forEach(el => {
         lottie.loadAnimation({
             container: el,
-            renderer: 'svg',
-            loop: true,
-            autoplay: true,
+            renderer: 'svg', loop: true, autoplay: true,
             path: 'black_sakura.json'
         });
     });
 
-    // Увеличенный подарок
+    // Загрузка кошки
+    lottie.loadAnimation({
+        container: document.getElementById('lottie-cat'),
+        renderer: 'svg', loop: true, autoplay: true,
+        path: 'cat.json'
+    });
+
+    // Загрузка подарка
     lottie.loadAnimation({
         container: document.getElementById('lottie-gift'),
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
+        renderer: 'svg', loop: true, autoplay: true,
         path: 'gift.json'
     });
 
-    // Блокировка зума
+    // Блокировка зума и двойного клика
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length > 1) e.preventDefault();
     }, { passive: false });
